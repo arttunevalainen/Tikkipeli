@@ -9,8 +9,8 @@ var tikki = new Tikki();
 
 
 function Tikki() {
-    var deck = new CardDeck();
-    var playerhand = new Hand();
+
+    var hand = new Hand();
 
     var server = app.listen(8081, function () {
         var host = server.address().address
@@ -24,11 +24,33 @@ function Tikki() {
         res.send('Hello World');
     });
 
-    deck.shuffle().then(() => {
-        for(i = 0; i < 5; i++) {
-            playerhand.addtoHand(deck.draw());
+    for(var i = 0; i < 10; i++) {
+
+        var deck = new CardDeck();
+        
+        hand.initiate().then((playerhand) => {
+            deck.shuffle().then(() => {
+                this.createHand(playerhand, deck).then(() => {
+                    playerhand.getPoker().then(c => {
+                        if(c === "Trips" || c === "Straigth" || c === "Flush" || c === "FullHouse" || c === "Quads" || c === "StraigthFlush") {
+                            playerhand.printHand().then(() => {
+                                console.log(c);
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    }
+}
+
+Tikki.prototype.createHand = function(hand, deck) {
+    return new Promise(function(resolve, reject) {
+        for(var i = 0; i < 5; i++) {
+            hand.addtoHand(deck.draw());
         }
-        playerhand.printHand();
-        console.log(playerhand.getPoker());
+        resolve();
+    }).catch((err) => {
+        console.log(err);
     });
 }

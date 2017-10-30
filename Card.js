@@ -12,20 +12,20 @@ class Card {
     }
 
     getNumber() {
-        return this.number;
+        return parseInt(this.number);
     }
 
     toString() {
         var card = "";
-        var suitStr = this.number;
+        var numberStr = this.number;
 
-        if (this.number == 10) {suitStr = "T";}
-        else if (this.number == 11) {suitStr = "J";}
-        else if (this.number == 12) {suitStr = "Q";}
-        else if (this.number == 13) {suitStr = "K";}
-        else if (this.number == 14) {suitStr = "A";}
+        if (this.number == 10) {numberStr = "T";}
+        else if (this.number == 11) {numberStr = "J";}
+        else if (this.number == 12) {numberStr = "Q";}
+        else if (this.number == 13) {numberStr = "K";}
+        else if (this.number == 14) {numberStr = "A";}
         
-        card = card + suitStr + " of " + this.suit;
+        card = numberStr + " of " + this.suit;
         return card;
     }
 }

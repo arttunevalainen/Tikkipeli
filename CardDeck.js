@@ -25,7 +25,6 @@ class CardDeck {
 
     drawCard(i) {
         if (i > -1 || i < 52) {
-            //console.log(this.deck.splice(i, 1));
             return this.deck.splice(i, 1)[0];
         }
     }
@@ -34,7 +33,7 @@ class CardDeck {
         var deckClass = this;
         return new Promise(function(resolve, reject) {
             for (var i = 0; i < 1000; i++) {
-                var random = Math.floor((Math.random() * 52));
+                var random = Math.floor((Math.random() * deckClass.deck.length));
                 deckClass.deck.push(deckClass.drawCard(random));
             }
             resolve();
@@ -49,7 +48,7 @@ class CardDeck {
 
     createDeck() {
         for(var i = 2; i < 15; i++) {
-            for(var j = 0; j < 4; j++) {
+            for(var j = 0; j < suits.length; j++) {
                 var card = new Card(suits[j], i);
                 this.deck.push(card);
             }
@@ -57,9 +56,14 @@ class CardDeck {
     }
 
     printDeck() {
-        for (i = 0; i < this.deckSize(); i++) {
-            console.log(this.deck[i].toString());
-        }
+        return new Promise(function(resolve, reject) {
+            for (var i = 0; i < this.deckSize(); i++) {
+                console.log(this.deck[i].toString());
+            }
+            resolve();
+        }).catch((err) => {
+            console.log(err);
+        });
     }
 }
 

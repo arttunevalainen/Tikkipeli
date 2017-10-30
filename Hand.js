@@ -28,15 +28,26 @@ class Hand {
         return pokerHandCalc(this.hand);
     }
 
-    bestHand(pokerhands) {
-    }
-
     printHand() {
-        console.log("Players hand:");
-        for (i = 0; i < this.hand.length; i++) {
-            console.log(this.hand[i].toString());
-        }
+        var hand = this.hand;
+        return new Promise(function(resolve, reject) {
+            console.log("Players hand:");
+            for (var i = 0; i < hand.length; i++) {
+                console.log(hand[i].toString());
+            }
+            resolve();
+        }).catch((err) => {
+            console.log(err);
+        });
     }
+}
+
+Hand.prototype.initiate = function() {
+    return new Promise(function(resolve, reject) {
+        resolve(new Hand());
+    }).catch((err) => {
+        console.log(err);
+    });
 }
 
 
