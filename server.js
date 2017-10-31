@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const CardDeck = require('./CardDeck.js');
 const Hand = require('./Hand.js');
+const Card = require('./Card.js');
 
 var tikki = new Tikki();
 
@@ -24,24 +25,17 @@ function Tikki() {
         res.send('Hello World');
     });
 
-    for(var i = 0; i < 10; i++) {
+    var deck = new CardDeck();
 
-        var deck = new CardDeck();
-        
-        hand.initiate().then((playerhand) => {
-            deck.shuffle().then(() => {
-                this.createHand(playerhand, deck).then(() => {
-                    playerhand.getPoker().then(c => {
-                        if(c === "Trips" || c === "Straigth" || c === "Flush" || c === "FullHouse" || c === "Quads" || c === "StraigthFlush") {
-                            playerhand.printHand().then(() => {
-                                console.log(c);
-                            });
-                        }
-                    });
-                });
+    deck.shuffle().then(() => {
+        this.initiateHands(5).then((hands) => {
+            this.drawHands(hands, deck).then(() => {
+                for(var i = 0; i < hands.length; i++) {
+                    console.log(hands[i]);
+                }
             });
         });
-    }
+    });
 }
 
 Tikki.prototype.createHand = function(hand, deck) {
@@ -50,6 +44,31 @@ Tikki.prototype.createHand = function(hand, deck) {
             hand.addtoHand(deck.draw());
         }
         resolve();
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Tikki.prototype.drawHands = function(hands, deck) {
+    return new Promise(function(resolve, reject) {
+        for(var k = 0; k < hands.length; k++) {
+            for(var m = 0; m < 5; m++) {
+                hands[k].addtoHand(deck.draw());
+            }
+        }
+        resolve(hands)
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Tikki.prototype.initiateHands = function(i) {
+    return new Promise(function(resolve, reject) {
+        var hands = [];
+        for(var j = 0; j < i; j++) {
+            hands.push(new Hand());
+        }
+        resolve(hands)
     }).catch((err) => {
         console.log(err);
     });

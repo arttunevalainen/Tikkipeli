@@ -12,14 +12,6 @@ class Hand {
         this.hand.push(card);
     }
 
-    setHand(card1, card2, card3, card4, card5) {
-        this.hand.push(card1);
-        this.hand.push(card2);
-        this.hand.push(card3);
-        this.hand.push(card4);
-        this.hand.push(card5);
-    }
-
     getHand() {
         return this.hand;
     }
@@ -40,14 +32,6 @@ class Hand {
             console.log(err);
         });
     }
-}
-
-Hand.prototype.initiate = function() {
-    return new Promise(function(resolve, reject) {
-        resolve(new Hand());
-    }).catch((err) => {
-        console.log(err);
-    });
 }
 
 
