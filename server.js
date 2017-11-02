@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const router = require('./router.js');
-const Server = require('./Tikki.js');
+const Tikki = require('./Tikki.js');
 
 
 var serv = new Server();
