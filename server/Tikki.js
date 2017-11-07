@@ -6,8 +6,10 @@ const Card = require('./Card.js');
 
 function Tikki() {
     
+    
     var hand = new Hand();
     var deck = new CardDeck();
+
 
     deck.shuffle().then(() => {
         this.initiateHands(5).then((hands) => {
