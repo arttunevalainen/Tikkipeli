@@ -1,33 +1,34 @@
 import React, { Component } from 'react';
 import Request from 'react-http-request';
-import logo from './logo.svg';
+import axios from 'axios';
 import './App.css';
 
 class App extends Component {
-  render() {
-    return (
-      <div>
-        <h1>Hellurei</h1>
 
-        <Request
-          url='http://localhost:8081'
-          method='get'
-          accept='application/json'
-          verbose={true}
-        >
-          {
-            ({error, result, loading}) => {
-              if (loading) {
-                return <div>loading...</div>;
-              } else {
-                return <div>{ JSON.stringify(result.text) }</div>;
-              }
-            }
-          }
-        </Request>
-      </div>
-    );
-  }
+	constructor() {
+		super();
+		this.state = { data : "Loading..." };
+	}
+
+	getStuff() {
+		var component = this;
+
+		axios.get('http://localhost:8081')
+			.then(function (response) {
+				component.setState({ data : response.data });
+			})
+			.catch(function (error) {
+				console.log(error)
+			});
+	}
+
+	componentDidMount() {
+		this.getStuff();
+	}
+
+	render() {
+		return (<div>{this.state.data}</div>);
+	}
 }
 
 export default App;
