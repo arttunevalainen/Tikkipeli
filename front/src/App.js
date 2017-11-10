@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Request from 'react-http-request';
 import axios from 'axios';
 import './App.css';
 
@@ -12,8 +11,7 @@ class App extends Component {
 
 	getStuff() {
 		var component = this;
-
-		axios.get('http://localhost:8081')
+		axios.get('http://localhost:8081/setup')
 			.then(function (response) {
 				component.setState({ data : response.data });
 			})
@@ -27,7 +25,7 @@ class App extends Component {
 	}
 
 	render() {
-		return (<div>{this.state.data}</div>);
+		return (<div>{JSON.stringify(this.state.data.tikkistatus)}</div>);
 	}
 }
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const router = require('./router.js');
-const Tikki = require('./Tikki.js');
+const bodyparser = require("body-parser");
 
 
 var serv = new Server();
@@ -9,9 +9,10 @@ var serv = new Server();
 
 function Server() {
 
-    //var tikki = new Tikki();
-
-    app.use('/' , router);
+    app.use(bodyparser.urlencoded({ extended: false }));
+    app.use(bodyparser.json());
+    
+    app.use(router);
 
     var server = app.listen(8081, function () {
         var host = server.address().address
@@ -20,8 +21,4 @@ function Server() {
         console.log("App running...");
         
     });
-}
-
-Server.prototype.getSomething = function() {
-    
 }

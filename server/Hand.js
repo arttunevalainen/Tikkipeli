@@ -18,7 +18,14 @@ class Hand {
     }
 
     getPoker() {
-        return pokerHandCalc(this.hand);
+        var h = this;
+        return new Promise(function(resolve, reject) {
+            pokerHandCalc(this.hand).then((hand) => {
+                resolve(hand);
+            });
+        }).catch((err) => {
+            console.log(err);
+        });
     }
 
     printHand() {
@@ -32,6 +39,10 @@ class Hand {
         }).catch((err) => {
             console.log(err);
         });
+    }
+
+    getFirstCard() {
+        return this.hand[0];
     }
 }
 
