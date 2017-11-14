@@ -6,8 +6,8 @@ import './Login.css';
 
 class Login extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {value : ''};
 
         this.handleChange = this.handleChange.bind(this);
@@ -19,13 +19,14 @@ class Login extends Component {
     }
 
     handleSubmit(event) {
-        //alert(this.state.value);
         event.preventDefault();
-        newPlayer(this.state.value);
+        newPlayer(this.state.value).then((data) => {
+            this.props.sendData(data);
+        });
     }
 
     render() {
-        return ( 
+        return (
             <div id="form">
                 <form onSubmit={this.handleSubmit}>
                     <label>

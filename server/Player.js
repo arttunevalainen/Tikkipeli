@@ -3,9 +3,10 @@
 
 class Player {
 
-    constuctor(name) {
+    constructor(name) {
         this.name = name;
         this.code = "";
+        this.lobbyReady = false;
     }
 
     makeid() {
@@ -26,8 +27,9 @@ class Player {
         });
     }
 
-
-
+    toString() {
+        return this.name + " " + this.code;
+    }
 }
 
 

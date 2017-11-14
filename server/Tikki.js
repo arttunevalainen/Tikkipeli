@@ -21,8 +21,7 @@ Tikki.prototype.addPlayer = function(name) {
         players.push(a);
         
         a.makeid().then(() => {
-            console.log(a.code);
-            json = {status: 'ok', playercode: a.code};
+            var json = {status: 'ok', playercode: a.code};
             resolve(json)
         });
     }).catch((err) => {
@@ -30,8 +29,31 @@ Tikki.prototype.addPlayer = function(name) {
     });
 }
 
-Tikki.prototype.startGame = function() {
+Tikki.prototype.getLobby = function() {
 
+    var tikki = this;
+
+    console.log(this.players);
+
+    return new Promise(function(resolve, reject) {
+        var players = "";
+        for(var i = 0; i < tikki.players.length; i++) {
+            players = players + tikki.players[i].name + " - " + tikki.players[i].lobbyReady + " /";
+        }
+        console.log(players);
+        var json = {players: players};
+        resolve(json);
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Tikki.prototype.startGame = function() {
+    return new Promise(function(resolve, reject) {
+        resolve();
+    }).catch((err) => {
+        console.log(err);
+    });
 }
 
 Tikki.prototype.startRound = function() {

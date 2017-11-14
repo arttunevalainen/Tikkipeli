@@ -9,7 +9,7 @@ var serv = new Server();
 
 function Server() {
 
-    app.use(bodyparser.urlencoded({ extended: false }));
+    app.use(bodyparser.urlencoded({ extended: true }));
     app.use(bodyparser.json());
     
     app.use(router);

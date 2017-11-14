@@ -2,29 +2,52 @@
 import axios from 'axios';
 
 
+const address = "http://localhost:8081/";
+
 export function setupGame() {
-    
-    axios.get('http://localhost:8081/setup')
-        .then(function (response) {
-            return response.data;
-        })
-        .catch(function (error) {
-            console.log(error)
-        });
+
+    return new Promise(function(resolve, reject) {
+        axios.get(address + 'setup')
+            .then(function (response) {
+                resolve(response.data);
+            })
+            .catch(function (error) {
+                console.log(error)
+            });
+    }).catch((err) => {
+        console.log(err);
+    });
 }
 
 
 export function newPlayer(name) {
 
-    console.log(name);
+    return new Promise(function(resolve, reject) {
+        axios.post(address + 'addplayer', {
+                playername : name
+            })
+            .then(function (response) {
+                resolve(response.data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }).catch((err) => {
+        console.log(err);
+    });
+}
 
-    axios.post('http://localhost:8081/addplayer', {
-            params : name
-        })
-        .then(function (response) {
-            return response.data;
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+export function getLobby() {
+
+    return new Promise(function(resolve, reject) {
+        axios.get(address + 'getlobby')
+            .then(function (response) {
+                resolve(response.data);
+            })
+            .catch(function (error) {
+                console.log(error)
+            });
+    }).catch((err) => {
+        console.log(err);
+    });
 }
