@@ -2,16 +2,16 @@
 import axios from 'axios';
 
 
-/*function setupGame() {
+export function setupGame() {
     
     axios.get('http://localhost:8081/setup')
         .then(function (response) {
-            component.setState({ data : response.data });
+            return response.data;
         })
         .catch(function (error) {
             console.log(error)
         });
-}*/
+}
 
 
 export function newPlayer(name) {
@@ -22,7 +22,7 @@ export function newPlayer(name) {
             params : name
         })
         .then(function (response) {
-            console.log(response);
+            return response.data;
         })
         .catch(function (error) {
             console.log(error);

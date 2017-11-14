@@ -13,11 +13,18 @@ function Tikki() {
 }
 
 Tikki.prototype.addPlayer = function(name) {
+
+    var players = this.players;
+
     return new Promise(function(resolve, reject) {
         var a = new Player(name);
-        this.players.push(a);
-        json = {status: 'ok', code: a.code};
-        resolve(json)
+        players.push(a);
+        
+        a.makeid().then(() => {
+            console.log(a.code);
+            json = {status: 'ok', playercode: a.code};
+            resolve(json)
+        });
     }).catch((err) => {
         console.log(err);
     });

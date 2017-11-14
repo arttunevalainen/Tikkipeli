@@ -1,7 +1,7 @@
-
+import { newPlayer } from './RequestService.js';
 import React, { Component } from 'react';
 import './Login.css';
-import { newPlayer } from './RequestService.js';
+
 
 
 class Login extends Component {
@@ -17,16 +17,16 @@ class Login extends Component {
     handleChange(event) {
         this.setState({value: event.target.value});
     }
-    
+
     handleSubmit(event) {
         //alert(this.state.value);
         event.preventDefault();
         newPlayer(this.state.value);
     }
 
-	render() {
+    render() {
         return ( 
-            <div id="kek">
+            <div id="form">
                 <form onSubmit={this.handleSubmit}>
                     <label>
                         <p>Nimi:</p>
@@ -36,7 +36,7 @@ class Login extends Component {
                 </form>
             </div>
         );
-	}
+    }
 }
 
 export default Login;

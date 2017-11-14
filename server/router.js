@@ -9,7 +9,7 @@ var tikki = new Tikki();
 
 router.post('/addplayer', function(req, res) {
     tikki.addPlayer(req.name).then((json) => {
-        res.json({ namestatus: json.status, playercode: json.code });
+        res.json({ namestatus: json.status, playercode: json.playercode });
     });
 })
 
