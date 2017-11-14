@@ -13,23 +13,33 @@ class Lobby extends Component {
 
     getListofplayers() {
         this.makeplayerlist().then((playerlist) => {
-            /*const listed = playerlist.map((player) =>
+            const listed = playerlist.map((player) =>
                 <li>{player}</li>
             );
-            return (<ul>{listed}</ul>);*/
+            return (<ul>{listed}</ul>);
         });
     }
 
     makeplayerlist() {
 
+        var lobby = this;
+
         return new Promise(function(resolve, reject) {
             getLobby().then((data) => {
                 var playerlist = [];
-                returnable = {};
-                
+                var playernames = []
+
+                lobby.setState({players: data});
+
                 playerlist = data.players.split(" /");
-                
-                resolve(playerlist);
+
+                for(var i in playerlist) {
+                    playernames.push(i[0]);
+                }
+
+                console.log(playernames);
+
+                resolve(playernames);
             });
         }).catch((err) => {
             console.log(err);

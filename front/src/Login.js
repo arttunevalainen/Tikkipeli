@@ -33,7 +33,7 @@ class Login extends Component {
                         <p>Nimi:</p>
                         <input type="text" value={this.state.value} onChange={this.handleChange}></input>
                     </label><br></br><br></br>
-                    <input type="submit" value="Submit"></input>
+                    <input type="submit" value="Valmis"></input>
                 </form>
             </div>
         );
