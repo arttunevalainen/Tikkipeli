@@ -4,12 +4,17 @@
   "private": true,
   "dependencies": {
     "axios": "^0.17.0",
+    "bootstrap": "^4.0.0-beta",
     "fetch": "^1.1.0",
-    "react": "^15.0.0",
-    "react-dom": "^15.0.0",
+    "jquery": "^3.2.1",
+    "my": "^0.3.3",
+    "package": "^1.0.1",
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
     "react-http-request": "^1.0.3",
     "react-router": "^4.2.0",
-    "react-scripts": "1.0.17"
+    "react-scripts": "1.0.17",
+    "reactstrap": "^5.0.0-alpha.3"
   },
   "scripts": {
     "start": "react-scripts start",

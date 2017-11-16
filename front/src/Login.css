@@ -1,11 +1,10 @@
-.Login {
-  text-align: center;
+#form {
+    text-align: center;
+    margin: auto;
+    width: 50%;
+    padding: 10px;
 }
 
-
-#form {
-  text-align: center;
-  margin: auto;
-  width: 50%;
-  padding: 10px;
+#errormessage {
+    color: red;
 }

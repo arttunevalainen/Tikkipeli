@@ -17,13 +17,28 @@ Tikki.prototype.addPlayer = function(name) {
     var players = this.players;
 
     return new Promise(function(resolve, reject) {
-        var a = new Player(name);
-        players.push(a);
-        
-        a.makeid().then(() => {
-            var json = {status: 'ok', playercode: a.code};
-            resolve(json)
-        });
+
+        var nameTaken = false;
+
+        for(var i = 0; i < players.length; i++) {
+            if(players[i].name === name) {
+                nameTaken = true;
+            }
+        }
+
+        if(!nameTaken && name.length > 2) {
+            var a = new Player(name);
+            players.push(a);
+            
+            a.makeid().then(() => {
+                var json = {status: 'ok', name: name, playercode: a.code};
+                resolve(json)
+            });
+        }
+        else {
+            var json = {status: 'error'};
+            resolve(json);
+        }
     }).catch((err) => {
         console.log(err);
     });
@@ -40,8 +55,39 @@ Tikki.prototype.getLobby = function() {
         for(var i = 0; i < tikki.players.length; i++) {
             players = players + tikki.players[i].name + " - " + tikki.players[i].lobbyReady + " /";
         }
-        console.log(players);
+
         var json = {players: players};
+        
+        resolve(json);
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Tikki.prototype.setReady = function(req) {
+    
+    return new Promise(function(resolve, reject) {
+        var name = req.body.name;
+        var playercode = req.body.playercode;
+        var status = 'error';
+
+        for(var i = 0; i < players.length; i++) {
+            if(players[i].name === name) {
+                if(players[i].playercode === playercode) {
+                    if(players[i].lobbyReady) {
+                        player[i].lobbyReady = false;
+                    }
+                    else {
+                        player[i].lobbyReady = true;
+                    }
+
+                    status = 'ok';
+                }
+            }
+        }
+
+        var json = {status: status};
+
         resolve(json);
     }).catch((err) => {
         console.log(err);

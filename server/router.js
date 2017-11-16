@@ -1,7 +1,7 @@
 var express = require('express');
 var path = require('path');
 var router = express.Router();
-const Tikki = require('./Tikki.js');
+var Tikki = require('./Tikki.js');
 
 
 var tikki = new Tikki();
@@ -9,7 +9,7 @@ var tikki = new Tikki();
 
 router.post('/addplayer', function(req, res) {
     tikki.addPlayer(req.body.playername).then((json) => {
-        res.json({ namestatus: json.status, playercode: json.playercode });
+        res.json({ status: json.status, name: json.name, playercode: json.playercode });
     });
 })
 
@@ -23,6 +23,12 @@ router.get('/setup', function(req, res) {
 router.get('/getlobby', function(req, res) {
     tikki.getLobby().then((json) => {
         res.json({ players: json.players });
+    });
+});
+
+router.post('/readyinlobby', function(req, res) {
+    tikki.setReady(req.body).then((json) => {
+        res.json({ status: json.status });
     });
 });
 

@@ -8,14 +8,14 @@ class App extends Component {
 
     constructor() {
         super();
-        this.state = {component : "Login"};
+        this.state = {name: '', playercode: '', component : "Login"};
 
         this.getLoginData = this.getLoginData.bind(this);
     }
 
     getLoginData(val) {
-        if(val.namestatus === "ok") {
-            this.setState({component: "Lobby"});
+        if(val.status === "ok") {
+            this.setState({name: val.name, playercode: val.playercode, component: "Lobby"});
         }
     }
 

@@ -1,0 +1,13 @@
+#lobby {
+    text-align: center;
+}
+
+#lobbylist {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#readybutton {
+    margin-top: 20px;
+}
