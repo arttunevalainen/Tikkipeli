@@ -13,6 +13,12 @@ router.post('/addplayer', function(req, res) {
     });
 })
 
+router.post('/readyinlobby', function(req, res) {
+    tikki.setReady(req).then((json) => {
+        res.json({ status: json.status });
+    });
+});
+
 
 router.get('/setup', function(req, res) {
     tikki.startRound().then((status) => {
@@ -23,12 +29,6 @@ router.get('/setup', function(req, res) {
 router.get('/getlobby', function(req, res) {
     tikki.getLobby().then((json) => {
         res.json({ players: json.players });
-    });
-});
-
-router.post('/readyinlobby', function(req, res) {
-    tikki.setReady(req.body).then((json) => {
-        res.json({ status: json.status });
     });
 });
 

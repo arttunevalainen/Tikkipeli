@@ -1,18 +1,19 @@
 import React, { Component } from 'react';
 import { getLobby } from './RequestService.js';
-import { Button } from 'reactstrap';
+import { readyInLobby } from './RequestService.js';
 import './Lobby.css';
 
 
 class Lobby extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = ({players: " "});
 
         this.saveplayers = this.savePlayers.bind(this);
         this.makeplayerlist = this.makeplayerlist.bind(this);
+        this.readyClicked = this.readyClicked.bind(this);
 
         this.savePlayers();
     }
@@ -76,7 +77,10 @@ class Lobby extends Component {
     }
 
     readyClicked() {
-        console.log("ready clicked!");
+        readyInLobby(this.props.playername, this.props.playercode).then((data) => {
+            this.savePlayers();
+            this.listLobby();
+        });
     }
 
     render() {

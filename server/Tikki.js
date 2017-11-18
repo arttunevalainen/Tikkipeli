@@ -36,7 +36,7 @@ Tikki.prototype.addPlayer = function(name) {
             });
         }
         else {
-            var json = {status: 'error'};
+            var json = {status: 'Error creating player'};
             resolve(json);
         }
     }).catch((err) => {
@@ -57,7 +57,7 @@ Tikki.prototype.getLobby = function() {
         }
 
         var json = {players: players};
-        
+
         resolve(json);
     }).catch((err) => {
         console.log(err);
@@ -65,20 +65,22 @@ Tikki.prototype.getLobby = function() {
 }
 
 Tikki.prototype.setReady = function(req) {
+
+    var players = this.players;
     
     return new Promise(function(resolve, reject) {
-        var name = req.body.name;
+        var name = req.body.playername;
         var playercode = req.body.playercode;
-        var status = 'error';
+        var status = 'Error finding player';
 
         for(var i = 0; i < players.length; i++) {
             if(players[i].name === name) {
-                if(players[i].playercode === playercode) {
+                if(players[i].code === playercode) {
                     if(players[i].lobbyReady) {
-                        player[i].lobbyReady = false;
+                        players[i].lobbyReady = false;
                     }
                     else {
-                        player[i].lobbyReady = true;
+                        players[i].lobbyReady = true;
                     }
 
                     status = 'ok';

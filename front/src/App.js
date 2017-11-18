@@ -8,14 +8,14 @@ class App extends Component {
 
     constructor() {
         super();
-        this.state = {name: '', playercode: '', component : "Login"};
+        this.state = {playername: '', playercode: '', component : "Login"};
 
         this.getLoginData = this.getLoginData.bind(this);
     }
 
     getLoginData(val) {
         if(val.status === "ok") {
-            this.setState({name: val.name, playercode: val.playercode, component: "Lobby"});
+            this.setState({playername: val.name, playercode: val.playercode, component: "Lobby"});
         }
     }
 
@@ -23,11 +23,11 @@ class App extends Component {
 
         if(this.state.component === "Login") {
             return ( 
-                <Login sendData = {this.getLoginData}/>
+                <Login sendData={this.getLoginData}/>
             );
         }
         else if(this.state.component === "Lobby") {
-            return (<Lobby/>);
+            return (<Lobby playername={this.state.playername} playercode={this.state.playercode}/>);
         }
         else if(this.state.component === "Game") {
             return (<div>Game</div>);
