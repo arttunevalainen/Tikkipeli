@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Login from './Login';
 import Lobby from './Lobby';
+import Game from './Game';
 
 
 
@@ -11,11 +12,18 @@ class App extends Component {
         this.state = {playername: '', playercode: '', component : "Login"};
 
         this.getLoginData = this.getLoginData.bind(this);
+        this.getLobbyData = this.getLobbyData.bind(this);
     }
 
-    getLoginData(val) {
-        if(val.status === "ok") {
-            this.setState({playername: val.name, playercode: val.playercode, component: "Lobby"});
+    getLoginData(data) {
+        if(data.status === "ok") {
+            this.setState({playername: data.name, playercode: data.playercode, admin: data.admin, component: "Lobby"});
+        }
+    }
+
+    getLobbyData(data) {
+        if(data.status === "allready") {
+            this.setState({component: "Game"});
         }
     }
 
@@ -27,10 +35,22 @@ class App extends Component {
             );
         }
         else if(this.state.component === "Lobby") {
-            return (<Lobby playername={this.state.playername} playercode={this.state.playercode}/>);
+            if(!this.state.gamestarted) {
+                return (
+                    <Lobby playername={this.state.playername}
+                           playercode={this.state.playercode}
+                           admin={this.state.admin}
+                           sendData={this.getLobbyData}/>
+                );
+            }
+            else {
+                return (<div>Game has already started</div>);
+            }
         }
         else if(this.state.component === "Game") {
-            return (<div>Game</div>);
+            return (
+                <Game/>
+            );
         }
         else {
             return (<div>Error!</div>);

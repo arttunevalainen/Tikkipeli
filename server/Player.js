@@ -6,7 +6,7 @@ class Player {
     constructor(name) {
         this.name = name;
         this.code = "";
-        this.lobbyReady = false;
+        this.hand;
     }
 
     makeid() {

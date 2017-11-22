@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { getLobby } from './RequestService.js';
-import { readyInLobby } from './RequestService.js';
 import './Lobby.css';
 
 
@@ -32,9 +31,7 @@ class Lobby extends Component {
         return new Promise(function(resolve, reject) {
             getLobby().then((data) => {
 
-                data = data.players.split(" /");
-                data.pop();
-                //console.log(data);
+                data = data.players;
 
                 resolve(data);
             });
@@ -45,50 +42,34 @@ class Lobby extends Component {
 
     listLobby() {
         var listItems = [];
-
-        for(var i = 0; i < this.state.players.length; i++) {
-            var a = this.state.players[i].split(" - ");
-            listItems.push(a[0]);
-        }
-
-        
+        listItems = this.state.players.split("/");
+        listItems.pop();
         
         const list = listItems.map((name) =>
             <li key={name.toString()}>
-                {name} {this.getReadyState(name)}
+                {name}
             </li>
         );
 
         return <ul id="lobbylist">{list}</ul>
     }
 
-    getReadyState(name) {
-        for(var i = 0; i < this.state.players.length; i++) {
-            var a = this.state.players[i].split(" - ");
-            if(a[0] === name) {
-                if(a[1] === "false") {
-                    return "not ready";
-                }
-                else {
-                    return "ready";
-                }
-            }
-        }
-    }
-
     readyClicked() {
-        readyInLobby(this.props.playername, this.props.playercode).then((data) => {
-            this.savePlayers();
-            this.listLobby();
-        });
+        console.log("ready clicked!");
     }
 
     render() {
+        var admin = false;
+        if(this.props.admin === "true") {
+            admin = true;
+        }
 
         return (
             <div id="lobby">
                 {this.listLobby()}
-                <button type="button" className="btn btn-secondary btn-lg" id="readybutton" onClick={this.readyClicked}>Ready</button>
+                {admin &&
+                    <button type="button" className="btn btn-secondary btn-lg" id="readybutton" onClick={this.readyClicked}>Ready</button>
+                }
             </div>
         );
     }
