@@ -28,14 +28,14 @@ class Hand {
         });
     }
 
-    printHand() {
+    stringHand() {
         var hand = this.hand;
         return new Promise(function(resolve, reject) {
-            console.log("Players hand:");
+            var stringhand = ""
             for (var i = 0; i < hand.length; i++) {
-                console.log(hand[i].toString());
+                stringhand = stringhand + hand[i].toString() + "/";
             }
-            resolve();
+            resolve(stringhand);
         }).catch((err) => {
             console.log(err);
         });

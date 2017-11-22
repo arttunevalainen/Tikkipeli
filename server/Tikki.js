@@ -9,21 +9,23 @@ function Tikki() {
 
     this.players = [];
     this.gameready = false;
+    this.adminplayer = undefined;
+    this.gameround = 0;
 
-    var adminplayer = undefined;
-
-    var hand = new Hand();
-    var deck = new CardDeck();
+    this.firstPlayer;
+    this.deck;
 
 }
 
-Tikki.prototype.addPlayer = function(name) {
+/** Add new player to the lobby */
+Tikki.prototype.addPlayer = function(req) {
 
     var tikki = this;
 
     return new Promise(function(resolve, reject) {
 
         var nameTaken = false;
+        var name =  req.playername;
 
         for(var i = 0; i < tikki.players.length; i++) {
             if(tikki.players[i].name === name) {
@@ -56,6 +58,7 @@ Tikki.prototype.addPlayer = function(name) {
     });
 }
 
+/** Get players in lobby */
 Tikki.prototype.getLobby = function() {
 
     var tikki = this;
@@ -76,6 +79,29 @@ Tikki.prototype.getLobby = function() {
     });
 }
 
+/** Get game status */
+Tikki.prototype.getGame = function(req) {
+
+    var tikki = this;
+    var json = {};
+
+    return new Promise(function(resolve, reject) {
+        if(tikki.gameready) {
+            tikki.getHand(req.name, req.playercode).then((hand) => {
+                console.log(hand);
+            });
+            json = { startingplayer: tikki.firstPlayer.name };
+        }
+        else {
+            json = {status: 'Error'};
+            resolve(json)
+        }
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+/** Start game. Check admin, start round, select starting player, mark that game is ready */
 Tikki.prototype.startGame = function(name, playercode) {
 
     var tikki = this;
@@ -83,8 +109,13 @@ Tikki.prototype.startGame = function(name, playercode) {
     return new Promise(function(resolve, reject) {
 
         if(tikki.checkAdmin(name, playercode)) {
-            tikki.startRound().then(() => {
-
+            tikki.startRound().then((status) => {
+                tikki.randomPlayer().then((number) => {
+                    tikki.firstPlayer = number;
+                    if(status === 'ok') {
+                        tikki.gameready = true;
+                    }
+                });
             });
         }
 
@@ -94,6 +125,7 @@ Tikki.prototype.startGame = function(name, playercode) {
     });
 }
 
+/** Check if player is Admin */
 Tikki.prototype.checkAdmin = function(name, playercode) {
     if(name === this.admin.name && playercode === this.admin.code) {
         return true;
@@ -101,14 +133,16 @@ Tikki.prototype.checkAdmin = function(name, playercode) {
     return false;
 }
 
+/** Start round by creating deck, shuffling it, initiating player hands, draw hands, deal hands for players */
 Tikki.prototype.startRound = function() {
 
     var tikki = this;
+    tikki.deck = new CardDeck();
 
     return new Promise(function(resolve, reject) {
-        deck.shuffle().then(() => {
+        tikki.deck.shuffle().then(() => {
             tikki.initiateHands(tikki.players.length).then((hands) => {
-                tikki.drawHands(hands, deck).then(() => {
+                tikki.drawHands(hands, tikki.deck).then((hands) => {
                     tikki.handsforplayers(hands).then(() => {
                         var status = "ok";
                         resolve(status);
@@ -121,6 +155,7 @@ Tikki.prototype.startRound = function() {
     });
 }
 
+/** Get player hand */
 Tikki.prototype.getHand = function(name, playercode) {
 
     var tikki = this;
@@ -128,7 +163,7 @@ Tikki.prototype.getHand = function(name, playercode) {
     return new Promise(function(resolve, reject) {
         for(var i = 0; i < tikki.players.length; i++) {
             if(tikki.players[i].name === name && tikki.players[i].code === playercode) {
-                resolve(tikki.players[i].hand);
+                resolve(tikki.players[i].hand.stringHand());
             }
         }
         resolve();
@@ -137,6 +172,20 @@ Tikki.prototype.getHand = function(name, playercode) {
     });
 }
 
+/** Select random player */
+Tikki.prototype.randomPlayer = function() {
+
+    var tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        var random = Math.floor((Math.random() * tikki.players.length));
+        resolve(tikki.players[random]);
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+/** Deal hands for players */
 Tikki.prototype.handsforplayers = function(hands) {
 
     var tikki = this;
@@ -151,6 +200,7 @@ Tikki.prototype.handsforplayers = function(hands) {
     });
 }
 
+/** Draw hands */
 Tikki.prototype.drawHands = function(hands, deck) {
     return new Promise(function(resolve, reject) {
         for(var k = 0; k < hands.length; k++) {
@@ -163,7 +213,8 @@ Tikki.prototype.drawHands = function(hands, deck) {
         console.log(err);
     });
 }
-    
+
+/** Initiate hands */
 Tikki.prototype.initiateHands = function(i) {
     return new Promise(function(resolve, reject) {
         var hands = [];

@@ -8,13 +8,26 @@ class Lobby extends Component {
     constructor(props) {
         super(props);
 
-        this.state = ({players: " "});
+        this.state = ({players: " ", seconds: 0});
 
         this.saveplayers = this.savePlayers.bind(this);
         this.makeplayerlist = this.makeplayerlist.bind(this);
         this.readyClicked = this.readyClicked.bind(this);
+        this.tick = this.tick.bind(this);
 
         this.savePlayers();
+    }
+
+    tick() {
+        this.setState({seconds: this.state.seconds + 1});
+    }
+
+    componentDidMount() {
+        this.interval = setInterval(this.tick, 1000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
     }
 
     savePlayers() {
@@ -62,6 +75,10 @@ class Lobby extends Component {
         var admin = false;
         if(this.props.admin === "true") {
             admin = true;
+        }
+
+        if(this.state.seconds % 2 === 0) {
+            this.savePlayers();
         }
 
         return (
