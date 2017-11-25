@@ -15,15 +15,27 @@ router.post('/addplayer', function(req, res) {
 
 router.get('/getlobby', function(req, res) {
     tikki.getLobby().then((json) => {
-        res.json({ players: json.players });
+        res.json({ players: json.players, gameready: json.gameready });
     });
 });
 
-router.get('/getGame', function(req, res) {
-    tikki.getGame(req.body).then((json) => {
+router.post('/setup', function(req, res) {
+    tikki.startGame(req.body).then((json) => {
         res.json({ status: json.status });
     });
 });
+
+router.post('/getGame', function(req, res) {
+    tikki.getGame(req.body).then((json) => {
+        res.json({ status: json.status, currentplayer: json.currentplayer, hand: json.hand, players: json.players });
+    });
+});
+
+router.post('/sendPlay', function(req, res) {
+    tikki.play(req.body).then((json) => {
+        res.json();
+    })
+})
 
 
 

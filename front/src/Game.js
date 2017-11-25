@@ -7,19 +7,15 @@ class Game extends Component {
     constructor(props) {
         super(props);
 
-        this.state = ({seconds: 0});
+        this.state = {hand: ''}
 
+        this.updateGame = this.updateGame.bind(this);
 
-        this.tick = this.tick.bind(this);
-        this.getGame = this.getGame.bind(this);
-    }
-
-    tick() {
-        this.setState({seconds: this.state.seconds + 1});
+        this.updateGame();
     }
 
     componentDidMount() {
-        this.interval = setInterval(this.tick, 1000);
+        this.interval = setInterval(() => this.updateGame(), 3000);
     }
 
     componentWillUnmount() {
@@ -27,21 +23,23 @@ class Game extends Component {
     }
 
     updateGame() {
-        getGame().then((data) => {
-            console.log(data);
+
+        var game = this;
+        getGame(this.props.playername, this.props.playercode).then((data) => {
+            game.setState({ players: data.players,
+                            hand: data.hand,
+                            currentplayer: data.currentplayer
+            });
         });
     }
 
     render() {
 
-        if(this.state.seconds % 2 === 0) {
-            this.updateGame();
-        }
-
-
         return (
             <div>
-                <h1>Game</h1>
+                <h1>Tikki</h1>
+
+                {this.state.hand}
             </div>
         );
     }

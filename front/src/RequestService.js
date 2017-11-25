@@ -5,10 +5,13 @@ import axios from 'axios';
 const address = "http://localhost:8081/";
 
 
-export function setupGame() {
+export function setupGame(name, code) {
 
     return new Promise(function(resolve, reject) {
-        axios.get(address + 'setup')
+        axios.post(address + 'setup', {
+                playername: name,
+                playercode: code
+            })
             .then(function (response) {
                 resolve(response.data);
             })
@@ -52,10 +55,13 @@ export function getLobby() {
     });
 }
 
-export function getGame() {
+export function getGame(name, code) {
 
     return new Promise(function(resolve, reject) {
-        axios.get(address + 'getGame')
+        axios.post(address + 'getGame', {
+                playername: name,
+                playercode: code
+            })
             .then(function (response) {
                 resolve(response.data);
             })

@@ -48,7 +48,6 @@ class Login extends Component {
                     <br/><br/>
                     <input type="submit" value="Valmis"></input>
                 </form>
-
             </div>
         );
     }

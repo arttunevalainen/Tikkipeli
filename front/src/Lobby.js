@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { getLobby } from './RequestService.js';
+import { getLobby, setupGame } from './RequestService.js';
 import './Lobby.css';
 
 
@@ -8,22 +8,18 @@ class Lobby extends Component {
     constructor(props) {
         super(props);
 
-        this.state = ({players: " ", seconds: 0});
+        this.state = ({players: " "});
 
         this.saveplayers = this.savePlayers.bind(this);
         this.makeplayerlist = this.makeplayerlist.bind(this);
         this.readyClicked = this.readyClicked.bind(this);
-        this.tick = this.tick.bind(this);
+        this.listLobby = this.listLobby.bind(this);
 
         this.savePlayers();
     }
 
-    tick() {
-        this.setState({seconds: this.state.seconds + 1});
-    }
-
     componentDidMount() {
-        this.interval = setInterval(this.tick, 1000);
+        this.interval = setInterval(() => this.savePlayers(), 2000);
     }
 
     componentWillUnmount() {
@@ -31,21 +27,20 @@ class Lobby extends Component {
     }
 
     savePlayers() {
-
         var lobby = this;
+        this.makeplayerlist().then(function(data) {
+            lobby.setState({players: data.players, gameready: data.gameready});
 
-        this.makeplayerlist().then(function(playernames) {
-            lobby.setState({players: playernames});
+            if(lobby.state.gameready === "true") {
+                clearInterval(lobby.interval);
+                lobby.props.sendData();
+            }
         });
     }
 
     makeplayerlist() {
-
         return new Promise(function(resolve, reject) {
             getLobby().then((data) => {
-
-                data = data.players;
-
                 resolve(data);
             });
         }).catch((err) => {
@@ -55,6 +50,7 @@ class Lobby extends Component {
 
     listLobby() {
         var listItems = [];
+
         listItems = this.state.players.split("/");
         listItems.pop();
         
@@ -68,18 +64,13 @@ class Lobby extends Component {
     }
 
     readyClicked() {
-        console.log("ready clicked!");
+        setupGame(this.props.playername, this.props.playercode).then((data) => {
+            this.props.sendData();
+        });
     }
 
     render() {
-        var admin = false;
-        if(this.props.admin === "true") {
-            admin = true;
-        }
-
-        if(this.state.seconds % 2 === 0) {
-            this.savePlayers();
-        }
+        var admin = (this.props.admin === "true");
 
         return (
             <div id="lobby">
@@ -87,6 +78,7 @@ class Lobby extends Component {
                 {admin &&
                     <button type="button" className="btn btn-secondary btn-lg" id="readybutton" onClick={this.readyClicked}>Ready</button>
                 }
+                {admin && <div><h6>Olet aulan admin.</h6></div>}
             </div>
         );
     }

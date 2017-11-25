@@ -21,10 +21,8 @@ class App extends Component {
         }
     }
 
-    getLobbyData(data) {
-        if(data.status === "allready") {
-            this.setState({component: "Game"});
-        }
+    getLobbyData() {
+        this.setState({component: "Game"});
     }
 
 	render() {
@@ -49,7 +47,8 @@ class App extends Component {
         }
         else if(this.state.component === "Game") {
             return (
-                <Game/>
+                <Game playername={this.state.playername}
+                      playercode={this.state.playercode}/>
             );
         }
         else {

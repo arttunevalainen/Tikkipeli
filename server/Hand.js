@@ -7,6 +7,7 @@ class Hand {
 
     constructor() {
         this.hand = [];
+        this.played = [];
     }
 
     addtoHand(card) {
