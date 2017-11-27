@@ -1,7 +1,8 @@
-const CardDeck = require('./CardDeck.js');
-const Hand = require('./Hand.js');
-const Card = require('./Card.js');
-const Player = require('./Player.js');
+var CardDeck = require('./CardDeck.js');
+var Hand = require('./Hand.js');
+var Card = require('./Card.js');
+var Player = require('./Player.js');
+var Round = require('./Round.js');
 
 
 
@@ -10,12 +11,8 @@ function Tikki() {
     this.players = [];
     this.gameready = false;
     this.adminplayer = undefined;
-    this.gameround = 0;
 
-    this.firstPlayer;
-    this.deck;
-
-    this.plays = [];
+    this.currentRound;
 
     /** CONST ATTRIBUTES */
     this.maxplayers = 8;
@@ -108,38 +105,28 @@ Tikki.prototype.getGame = function(req) {
     var json = {};
 
     return new Promise(function(resolve, reject) {
-        if(tikki.gameready) {
-            tikki.getHand(req.playername, req.playercode).then((hand) => {
-                json.hand = hand;
-                json.currentplayer = tikki.firstPlayer.name;
-                tikki.listPlayers().then((players) =>  {
-                    json.players = tikki.players;
-                    resolve(json);
-                });
-            });
-        }
-        else {
-            json.status = 'Error in getting the game';
-            resolve(json)
-        }
+        tikki.currentRound.getGame(req).then((json) => {
+            if(json.status === 'ok') {
+                resolve(json);
+            }
+            else {
+                json.status = 'error getting gameinfo';
+                resolve(json);
+            }
+        });
     }).catch((err) => {
         console.log(err);
     });
 }
 
+/** Make a play */
 Tikki.prototype.play = function(req) {
 
     var tikki = this;
     var json = {};
 
     return new Promise(function(resolve, reject) {
-        if(tikki.gameready) {
-            if(req.playercode === tikki.currentplayer.code) {
-                var play = new Play();
-            }
-        }
-        else {
-            json.status = 'Error in sending play';
+        if(req.playercode === round.currentplayer.code) {
             resolve();
         }
     }).catch((err) => {
@@ -162,13 +149,10 @@ Tikki.prototype.startGame = function(req) {
         if(tikki.checkAdmin(playername, playercode)) {
             tikki.startRound().then((ok) => {
                 if(ok === 'ok') {
-                    tikki.randomPlayer().then((number) => {
-                        tikki.firstPlayer = number;
-                        tikki.gameready = true;
+                    tikki.gameready = true;
 
-                        var json = { status: 'ok' };
-                        resolve(json);
-                    });
+                    var json = { status: 'ok' };
+                    resolve(json);
                 }
                 else {
                     var json = { status: status };
@@ -193,95 +177,15 @@ Tikki.prototype.checkAdmin = function(playername, playercode) {
 Tikki.prototype.startRound = function() {
 
     var tikki = this;
-    tikki.deck = new CardDeck();
+    tikki.currentRound = new Round(this.players);
 
     return new Promise(function(resolve, reject) {
-        tikki.deck.shuffle().then(() => {
-            tikki.initiateHands(tikki.players.length).then((hands) => {
-                tikki.drawHands(hands, tikki.deck).then((hands) => {
-                    tikki.handsforplayers(hands).then(() => {
-                        var status = "ok";
-                        resolve(status);
-                    });
-                });
-            });
+        tikki.currentRound.initiateRound().then((status) => {
+            resolve(status);
         });
     }).catch((err) => {
         console.log(err);
     });
 }
-
-/** Get player hand 
-Tikki.prototype.getHand = function(name, playercode) {
-
-    var tikki = this;
-
-    return new Promise(function(resolve, reject) {
-        for(var i = 0; i < tikki.players.length; i++) {
-            if(tikki.players[i].name === name && tikki.players[i].code === playercode) {
-                resolve(tikki.players[i].hand.stringHand());
-            }
-        }
-        resolve();
-    }).catch((err) => {
-        console.log(err);
-    });
-}
-
-/** Select random player 
-Tikki.prototype.randomPlayer = function() {
-
-    var tikki = this;
-
-    return new Promise(function(resolve, reject) {
-        var random = Math.floor((Math.random() * tikki.players.length));
-        resolve(tikki.players[random]);
-    }).catch((err) => {
-        console.log(err);
-    });
-}
-
-/** Deal hands for players 
-Tikki.prototype.handsforplayers = function(hands) {
-
-    var tikki = this;
-
-    return new Promise(function(resolve, reject) {
-        for(var i = 0; i < tikki.players.length; i++) {
-            tikki.players[i].hand = hands[i];
-        }
-        resolve()
-    }).catch((err) => {
-        console.log(err);
-    });
-}
-
-/** Draw hands 
-Tikki.prototype.drawHands = function(hands, deck) {
-    return new Promise(function(resolve, reject) {
-        for(var k = 0; k < hands.length; k++) {
-            for(var m = 0; m < 5; m++) {
-                hands[k].addtoHand(deck.draw());
-            }
-        }
-        resolve(hands)
-    }).catch((err) => {
-        console.log(err);
-    });
-}
-
-/** Initiate hands 
-Tikki.prototype.initiateHands = function(i) {
-    return new Promise(function(resolve, reject) {
-        var hands = [];
-        for(var j = 0; j < i; j++) {
-            hands.push(new Hand());
-        }
-        resolve(hands)
-    }).catch((err) => {
-        console.log(err);
-    });
-}
-*/
 
 module.exports = Tikki;

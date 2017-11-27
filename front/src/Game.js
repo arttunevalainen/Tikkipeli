@@ -7,7 +7,7 @@ class Game extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {hand: ''}
+        this.state = {hand: ''};
 
         this.updateGame = this.updateGame.bind(this);
 
