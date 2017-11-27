@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { getLobby, setupGame } from './RequestService.js';
+import { Button, ListGroup, ListGroupItem } from 'reactstrap';
 import './Lobby.css';
 
 
@@ -8,12 +9,13 @@ class Lobby extends Component {
     constructor(props) {
         super(props);
 
-        this.state = ({players: " "});
+        this.state = ({players: " ", playercount: 0});
 
         this.saveplayers = this.savePlayers.bind(this);
         this.makeplayerlist = this.makeplayerlist.bind(this);
         this.readyClicked = this.readyClicked.bind(this);
         this.listLobby = this.listLobby.bind(this);
+        this.getListofPlayers = this.getListofPlayers.bind(this);
 
         this.savePlayers();
     }
@@ -30,6 +32,9 @@ class Lobby extends Component {
         var lobby = this;
         this.makeplayerlist().then(function(data) {
             lobby.setState({players: data.players, gameready: data.gameready});
+
+            var listlen = lobby.getListofPlayers().length;
+            lobby.setState({playercount : listlen});
 
             if(lobby.state.gameready === "true") {
                 clearInterval(lobby.interval);
@@ -48,19 +53,25 @@ class Lobby extends Component {
         });
     }
 
-    listLobby() {
-        var listItems = [];
+    getListofPlayers() {
+        var list = []; 
 
-        listItems = this.state.players.split("/");
-        listItems.pop();
+        list = this.state.players.split("/");
+        list.pop();
+
+        return list;
+    }
+
+    listLobby() {
+        var listItems = this.getListofPlayers();
         
         const list = listItems.map((name) =>
-            <li key={name.toString()}>
+            <ListGroupItem id="listitem" key={name.toString()}>
                 {name}
-            </li>
+            </ListGroupItem>
         );
 
-        return <ul id="lobbylist">{list}</ul>
+        return <ListGroup id="lobbylist">{list}</ListGroup>
     }
 
     readyClicked() {
@@ -74,11 +85,12 @@ class Lobby extends Component {
 
         return (
             <div id="lobby">
+                {this.state.playercount} / 8
                 {this.listLobby()}
                 {admin &&
-                    <button type="button" className="btn btn-secondary btn-lg" id="readybutton" onClick={this.readyClicked}>Ready</button>
+                    <Button type="button" color="success" id="readybutton" onClick={this.readyClicked}>Pelaamaan</Button>
                 }
-                {admin && <div><h6>Olet aulan admin.</h6></div>}
+                {admin && <div id="admininfo"><h6>Olet aulan admin. Kun painat "pelaamaan", koko aula siirtyy peliin.</h6></div>}
             </div>
         );
     }

@@ -28,7 +28,7 @@ class App extends Component {
 	render() {
 
         if(this.state.component === "Login") {
-            return ( 
+            return (
                 <Login sendData={this.getLoginData}/>
             );
         }

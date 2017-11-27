@@ -1,5 +1,6 @@
 import { newPlayer } from './RequestService.js';
 import React, { Component } from 'react';
+import { Button } from 'reactstrap';
 import './Login.css';
 
 
@@ -40,13 +41,13 @@ class Login extends Component {
             <div id="form">
                 <form onSubmit={this.handleSubmit}>
                     <label>
-                        <p>Nimi:</p>
-                        <input type="text" value={this.state.value} onChange={this.handleChange}></input>
+                        <h2>Nimi:</h2>
+                        <input id="nameinput" type="text" value={this.state.value} onChange={this.handleChange}></input>
                     </label>
                     <br/>
                     <label id="errormessage">{this.errorMessage()}</label>
                     <br/><br/>
-                    <input type="submit" value="Valmis"></input>
+                    <Button color="success" id="formbutton" type="submit">Valmis</Button>
                 </form>
             </div>
         );

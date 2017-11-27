@@ -173,7 +173,7 @@ Tikki.prototype.checkAdmin = function(playername, playercode) {
     return false;
 }
 
-/** Start round by creating deck, shuffling it, initiating player hands, draw hands, deal hands for players */
+/** Start round */
 Tikki.prototype.startRound = function() {
 
     var tikki = this;

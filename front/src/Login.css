@@ -8,3 +8,15 @@
 #errormessage {
     color: red;
 }
+
+#nameinput {
+    width: 250px;
+    height: 60px;
+    font-size: 35px;
+}
+
+#formbutton {
+    width: 200px;
+    height: 60px;
+    font-size: 24px;
+}
