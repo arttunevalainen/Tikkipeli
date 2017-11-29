@@ -16,11 +16,12 @@ class Card {
     }
 
     isSameCard(card) {
-        if(this.suit === card.suit && this.number === card.number) {
-            return true;
+
+        if(card.suit === this.suit && card.number === this.number) {
+            return(true);
         }
         else {
-            return false;
+            return(false);
         }
     }
 

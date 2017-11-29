@@ -125,6 +125,8 @@ Tikki.prototype.play = function(req) {
     var tikki = this;
     var json = {};
 
+    console.log(req);
+
     return new Promise(function(resolve, reject) {
         tikki.currentRound.savePlay(req).then((status) => {
             console.log(status);

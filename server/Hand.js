@@ -36,14 +36,29 @@ class Hand {
 
             var json = {}
 
-            card = hand.objectifyCard(card);
+            hand.objectifyCard(card).then((card) => {
+                hand.searchforcard(card).then((index) => {
+                    var a = hand.hand.splice(index, 1);
+                    json.status = 'ok';
+                    resolve(json);
+                });
+            });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    /** Returns index of card in this hand */
+    searchforcard(card) {
+
+        var hand = this;
+
+        return new Promise(function(resolve, reject) {
             for (var i = 0; i < hand.hand.length; i++) {
                 if(hand.hand[i].isSameCard(card)) {
-                    hand.hand.splice(i, 1);
-                    json.status = 'ok';
+                    resolve(i);
                 }
             }
-            resolve(json);
         }).catch((err) => {
             console.log(err);
         });
@@ -62,7 +77,7 @@ class Hand {
             }
 
             if(parseInt(number)) {
-                cardObject = new Card(suit, number);
+                cardObject = new Card(suit, parseInt(number));
             }
             else {
                 if(number === 'T') {

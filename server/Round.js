@@ -16,6 +16,7 @@ class Round {
         this.currentplayer;
     }
 
+    /** Start round */
     initiateRound() {
 
         var round = this;
@@ -40,6 +41,7 @@ class Round {
         });
     }
 
+    /** Get game for response */
     getGame(req) {
         
         var round = this;
@@ -60,16 +62,32 @@ class Round {
         });
     }
 
+    /** Player tries to play */
     savePlay(req) {
 
         var round =  this;
 
         return new Promise(function(resolve, reject) {
-            round.getPlayer(req.playername, req.playercode).then((player) => {
+            round.getPlayerObject(req.playername, req.playercode).then((player) => {
                 if(player !== "error") {
-                    player.cardPlayed(req.playedcard).then((status) => {
-                        console.log(status);
-                        resolve(status);
+                    round.iscurrentplayer(req).then((iscurrent) => {
+                        if(iscurrent) {
+                            player.cardPlayed(req.playedcard).then((json) => {
+                                if(json.status === 'ok') {
+                                    round.nextPlayerToPlay().then(() => {
+                                        round.plays.push({ player: req.playername, card: req.playedcard });
+                                        console.log(round.plays);
+                                        resolve({ status : 'ok', currentplayer: round.currentplayer.name });
+                                    });
+                                }
+                                else {
+                                    resolve("error");
+                                }
+                            });
+                        }
+                        else {
+                            resolve("error");
+                        }
                     });
                 }
                 else {
@@ -81,7 +99,63 @@ class Round {
         });
     }
 
-    getPlayer(name, code) {
+    /**Check if player who tries to play is really current player */
+    iscurrentplayer(req) {
+
+        var round = this;
+
+        return new Promise(function(resolve, reject) {
+            if(round.currentplayer.name === req.playername && round.currentplayer.code === req.playercode) {
+                resolve(true);
+            }
+            else {
+                resolve(false);
+            }
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    /** Get next player in playing queue */
+    nextPlayerToPlay() {
+
+        var round =  this;
+
+        return new Promise(function(resolve, reject) {
+            round.getPlayerIndex(round.currentplayer).then((index) => {
+                if(index+1 === round.players.length) {
+                    round.currentplayer = round.players[0];
+                    resolve();
+                }
+                else {
+                    round.currentplayer = round.players[index+1];
+                    resolve();
+                }
+            });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    /** Returns index of player in players[] */
+    getPlayerIndex(player) {
+
+        var round = this;
+
+        return new Promise(function(resolve, reject) {
+            for (var i = 0; i < round.players.length; i++) {
+                if(round.players[i].name === player.name && round.players[i].code === player.code) {
+                    resolve(i);
+                }
+            }
+            resolve("error");
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    /** Returns player object from players[] */
+    getPlayerObject(name, code) {
         var round =  this;
         
         return new Promise(function(resolve, reject) {
@@ -96,6 +170,7 @@ class Round {
         });
     }
 
+    /** List players as string for response */
     listPlayers() {
         
         var round = this;
@@ -111,6 +186,7 @@ class Round {
         });
     }
 
+    /** Get players hand */
     getHand(name, playercode) {
         var round = this;
         
@@ -126,6 +202,7 @@ class Round {
         });
     }
 
+    /** Select random player */
     randomPlayer() {
         var round = this;
         
@@ -137,7 +214,7 @@ class Round {
         });
     }
 
-    // Deal hands for players
+    /** Deal hands for players */
     handsforplayers(hands) {
         var round = this;
         
@@ -151,7 +228,7 @@ class Round {
         });
     }
 
-    // Draw hands 
+    /** Draw hands */
     drawHands(hands) {
 
         var round = this;
@@ -168,7 +245,7 @@ class Round {
         });
     }
 
-    // Initiate hands
+    /** Initiate hands */
     initiateHands() {
 
         var round = this;
