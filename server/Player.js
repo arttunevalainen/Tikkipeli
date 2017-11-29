@@ -27,6 +27,19 @@ class Player {
         });
     }
 
+    cardPlayed(card) {
+
+        var player = this;
+
+        return new Promise(function(resolve, reject) {
+            player.hand.deleteCard(card).then((status) => {
+                resolve(status);
+            });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
     toString() {
         return this.name + " " + this.code;
     }

@@ -73,13 +73,13 @@ export function getGame(name, code) {
     });
 }
 
-export function sendPlay(name, code, play) {
+export function sendPlay(name, code, playedcard) {
     
     return new Promise(function(resolve, reject) {
         axios.post(address + 'sendPlay', {
                 playername : name,
                 playercode : code,
-                play : play
+                playedcard : playedcard
             })
             .then(function (response) {
                 resolve(response.data);

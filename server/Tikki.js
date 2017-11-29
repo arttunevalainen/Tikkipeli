@@ -126,9 +126,10 @@ Tikki.prototype.play = function(req) {
     var json = {};
 
     return new Promise(function(resolve, reject) {
-        if(req.playercode === round.currentplayer.code) {
-            resolve();
-        }
+        tikki.currentRound.savePlay(req).then((status) => {
+            console.log(status);
+            resolve(status);
+        });
     }).catch((err) => {
         console.log(err);
     });

@@ -1,7 +1,7 @@
 
 const Card = require('./Card.js');
 
-var suits = ["hearts", "spades", "diamonds", "clubs"];
+var suits = ["hertta", "pata", "ruutu", "risti"];
 
 class CardDeck {
     

@@ -10,6 +10,8 @@ class Round {
     constructor(players) {
         this.players = players;
 
+        this.plays = [];
+
         this.startingplayer;
         this.currentplayer;
     }
@@ -53,6 +55,42 @@ class Round {
                     resolve(json);
                 });
             });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    savePlay(req) {
+
+        var round =  this;
+
+        return new Promise(function(resolve, reject) {
+            round.getPlayer(req.playername, req.playercode).then((player) => {
+                if(player !== "error") {
+                    player.cardPlayed(req.playedcard).then((status) => {
+                        console.log(status);
+                        resolve(status);
+                    });
+                }
+                else {
+                    resolve("error");
+                }
+            })
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    getPlayer(name, code) {
+        var round =  this;
+        
+        return new Promise(function(resolve, reject) {
+            for(var i = 0; i < round.players.length; i++) {
+                if(round.players[i].name === name && round.players[i].code === code) {
+                    resolve(round.players[i]);
+                }
+            }
+            resolve("error");
         }).catch((err) => {
             console.log(err);
         });
