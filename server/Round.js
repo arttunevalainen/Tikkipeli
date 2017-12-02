@@ -12,6 +12,8 @@ class Round {
 
         this.plays = [];
 
+        this.roundOver = false;
+
         this.startingplayer;
         this.currentplayer;
     }
@@ -48,15 +50,64 @@ class Round {
         var json = {};
     
         return new Promise(function(resolve, reject) {
-            round.getHand(req.playername, req.playercode).then((hand) => {
-                json.hand = hand;
-                json.currentplayer = round.currentplayer.name;
-                round.listPlayers().then((players) =>  {
-                    json.players = round.players;
-                    json.status = 'ok';
+            round.isRoundOver().then(() => {
+                if(!round.roundOver) {
+                    round.getHand(req.playername, req.playercode).then((hand) => {
+                        json.hand = hand;
+                        json.currentplayer = round.currentplayer.name;
+                        round.listPlayers().then((players) =>  {
+                            round.readyPlaysForSending(req.playername).then((plays) => {
+                                json.plays = plays;
+                                json.players = round.players;
+                                json.status = 'ok';
+                                resolve(json);
+                            })
+                        });
+                    });
+                }
+                else {
+                    json.status = 'finished';
                     resolve(json);
-                });
+                }
             });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    isRoundOver() {
+
+        var allEmpty = false;
+        var round = this;
+        return new Promise(function(resolve, reject) {
+            for(var i = 0; i < round.players.length; i++) {
+                if(round.players[i].hand.isEmpty()) {
+                    allEmpty = true;
+                }
+            }
+            round.roundOver = allEmpty;
+
+            resolve();
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    readyPlaysForSending(playername) {
+
+        var recentPlays = "";
+        var round = this;
+
+        return new Promise(function(resolve, reject) {
+            for(var i = 0; i < round.plays.length; i++) {
+                if(round.plays[i].player !== playername) {
+                    recentPlays = recentPlays + round.plays[i].player + " " + round.plays[i].card + "/";
+                }
+                else {
+                    resolve(recentPlays);
+                }
+            }
+            resolve(recentPlays);
         }).catch((err) => {
             console.log(err);
         });
@@ -75,7 +126,7 @@ class Round {
                             player.cardPlayed(req.playedcard).then((json) => {
                                 if(json.status === 'ok') {
                                     round.nextPlayerToPlay().then(() => {
-                                        round.plays.push({ player: req.playername, card: req.playedcard });
+                                        round.plays.unshift({ player: req.playername, card: req.playedcard });
                                         console.log(round.plays);
                                         resolve({ status : 'ok', currentplayer: round.currentplayer.name });
                                     });

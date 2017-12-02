@@ -10,6 +10,10 @@ class Hand {
         this.played = [];
     }
 
+    isEmpty() {
+        return this.hand.length === 0;
+    }
+
     addtoHand(card) {
         this.hand.push(card);
     }

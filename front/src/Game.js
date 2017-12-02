@@ -28,11 +28,15 @@ class Game extends Component {
 
     updateGame() {
         var game = this;
-        console.log(this.state.currentplayer !== this.props.playername);
+        if(this.state.currentplayer === this.props.playername) {
+            console.log("Your Turn");
+        }
         if(this.state.currentplayer !== this.props.playername) {
             getGame(this.props.playername, this.props.playercode).then((data) => {
+                console.log(data);
                 game.setState({ players: data.players,
                                 hand: data.hand,
+                                plays: data.plays,
                                 currentplayer: data.currentplayer
                 });
             });
@@ -90,6 +94,7 @@ class Game extends Component {
             <div>
                 <h1>Tikki</h1>
                 {this.playercards()}
+                {this.state.plays}
             </div>
         );
     }
