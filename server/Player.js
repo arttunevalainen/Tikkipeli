@@ -7,6 +7,8 @@ class Player {
         this.name = name;
         this.code = "";
         this.hand;
+
+        this.points = 0;
     }
 
     makeid() {

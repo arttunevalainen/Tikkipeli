@@ -1,7 +1,10 @@
-const CardDeck = require('./CardDeck.js');
-const Hand = require('./Hand.js');
-const Card = require('./Card.js');
-const Player = require('./Player.js');
+var CardDeck = require('./CardDeck.js');
+var Hand = require('./Hand.js');
+var Card = require('./Card.js');
+var Player = require('./Player.js');
+var pokerhandcalc = require('./PokerHandCalc.js');
+
+var promiseWhile = require('while-promise')(Promise)
 
 
 
@@ -50,39 +53,32 @@ class Round {
         var json = {};
     
         return new Promise(function(resolve, reject) {
-            round.isRoundOver().then(() => {
-                if(!round.roundOver) {
-                    round.getHand(req.playername, req.playercode).then((hand) => {
-                        json.hand = hand;
-                        json.currentplayer = round.currentplayer.name;
-                        round.listPlayers().then((players) =>  {
-                            round.readyPlaysForSending(req.playername).then((plays) => {
-                                json.plays = plays;
-                                json.players = round.players;
-                                json.status = 'ok';
-                                resolve(json);
-                            })
-                        });
-                    });
-                }
-                else {
-                    json.status = 'finished';
-                    resolve(json);
-                }
+            round.getHand(req.playername, req.playercode).then((hand) => {
+                json.hand = hand;
+                json.currentplayer = round.currentplayer.name;
+                round.listPlayers().then((players) =>  {
+                    round.readyPlaysForSending(req.playername).then((plays) => {
+                        json.plays = plays;
+                        json.players = round.players;
+                        json.status = 'ok';
+                        resolve(json);
+                    })
+                });
             });
         }).catch((err) => {
             console.log(err);
         });
     }
 
+    /** Check if all players have played all their cards */
     isRoundOver() {
 
-        var allEmpty = false;
+        var allEmpty = true;
         var round = this;
         return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.players.length; i++) {
-                if(round.players[i].hand.isEmpty()) {
-                    allEmpty = true;
+                if(!round.players[i].hand.isEmpty()) {
+                    allEmpty = false;
                 }
             }
             round.roundOver = allEmpty;
@@ -93,6 +89,7 @@ class Round {
         });
     }
 
+    /** Ready recent plays for response */
     readyPlaysForSending(playername) {
 
         var recentPlays = "";
@@ -127,22 +124,21 @@ class Round {
                                 if(json.status === 'ok') {
                                     round.nextPlayerToPlay().then(() => {
                                         round.plays.unshift({ player: req.playername, card: req.playedcard });
-                                        console.log(round.plays);
                                         resolve({ status : 'ok', currentplayer: round.currentplayer.name });
                                     });
                                 }
                                 else {
-                                    resolve("error");
+                                    resolve({ status: "error" });
                                 }
                             });
                         }
                         else {
-                            resolve("error");
+                            resolve({ status: "error" });
                         }
                     });
                 }
                 else {
-                    resolve("error");
+                    resolve({ status: "error" });
                 }
             })
         }).catch((err) => {
@@ -150,9 +146,80 @@ class Round {
         });
     }
 
+    countPoints() {
+        var round = this;
+
+        return new Promise(function(resolve, reject) {
+            console.log("counting points");
+
+            round.getPlayerIndex(round.plays[0].player).then((index) => {
+                console.log(round.players[index].points);
+                round.players[index].points = round.players[index].points + 3;
+
+                round.checkHands().then((winner) => {
+                    console.log(winner.playername);
+                    if(winner.playername) {
+                        round.getPlayerIndex(winner.playername).then((player) => {
+                            if(winner.points !== undefined) {
+                                player.points = player.points + winner.points;
+                                var response = { status: 'ok', winner: besthand };
+                                console.log("kek");
+                                resolve(response);
+                            }
+                            var response = { status: 'nopoints' };
+                            resolve(response);
+                        });
+                        resolve();
+                    }
+                    else {
+                        resolve();
+                    }
+                });
+            });
+            resolve();
+
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    checkHands() {
+        var round = this;
+
+        return new Promise(function(resolve, reject) {
+            var besthand = "";
+            var points = 0;
+            var name = "";
+
+            var i = 0;
+            
+            promiseWhile(function() { return i < round.players.length },
+                function() {
+                    return new Promise(function(resolve, reject) {
+                    setTimeout(function() {
+                        pokerhandcalc(round.players[i].hand.playedCards).then((card) => {
+                            if(card.handpoints > points) {
+                                name = round.players[i].name;
+                                points = card.handpoints;
+                                besthand = card.hand;
+                            }
+                            resolve(i++)
+                        });
+                    }, 1000)
+                    })
+                })
+            .then(function() {
+                console.log(besthand + " " + points + " " + name + " ----");
+                var json = { besthand: besthand, points: points, playername: name };
+                resolve(json);
+            });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
     /**Check if player who tries to play is really current player */
     iscurrentplayer(req) {
-
         var round = this;
 
         return new Promise(function(resolve, reject) {
@@ -169,11 +236,10 @@ class Round {
 
     /** Get next player in playing queue */
     nextPlayerToPlay() {
-
         var round =  this;
 
         return new Promise(function(resolve, reject) {
-            round.getPlayerIndex(round.currentplayer).then((index) => {
+            round.getPlayerIndex(round.currentplayer.name).then((index) => {
                 if(index+1 === round.players.length) {
                     round.currentplayer = round.players[0];
                     resolve();
@@ -189,13 +255,12 @@ class Round {
     }
 
     /** Returns index of player in players[] */
-    getPlayerIndex(player) {
-
+    getPlayerIndex(playername) {
         var round = this;
 
         return new Promise(function(resolve, reject) {
             for (var i = 0; i < round.players.length; i++) {
-                if(round.players[i].name === player.name && round.players[i].code === player.code) {
+                if(round.players[i].name === playername) {
                     resolve(i);
                 }
             }
@@ -223,7 +288,6 @@ class Round {
 
     /** List players as string for response */
     listPlayers() {
-        
         var round = this;
     
         return new Promise(function(resolve, reject) {

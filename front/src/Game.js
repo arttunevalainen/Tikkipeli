@@ -33,12 +33,16 @@ class Game extends Component {
         }
         if(this.state.currentplayer !== this.props.playername) {
             getGame(this.props.playername, this.props.playercode).then((data) => {
-                console.log(data);
-                game.setState({ players: data.players,
-                                hand: data.hand,
-                                plays: data.plays,
-                                currentplayer: data.currentplayer
-                });
+                if(data.status !== 'notready') {
+                    game.setState({ players: data.players,
+                                    hand: data.hand,
+                                    plays: data.plays,
+                                    currentplayer: data.currentplayer
+                    });
+                }
+                else {
+                    game.props.sendData();
+                }
             });
         }
     }
@@ -56,15 +60,18 @@ class Game extends Component {
     }
 
     getCards() {
-        var cards = this.state.hand.split("/");
-        cards.pop();
+        var cards = this.state.hand;
+        if(cards !== '' || cards !== undefined) {
+            cards = cards.split("/");
+            cards.pop();
+        }
 
         return cards;
     }
 
     playercards() {
 
-        if(this.state.hand !== '') {
+        if(this.state.hand !== '' || this.state.hand !== undefined) {
 
             var cards = this.getCards();
 

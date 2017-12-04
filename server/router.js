@@ -15,7 +15,7 @@ router.post('/addplayer', function(req, res) {
 
 router.get('/getlobby', function(req, res) {
     tikki.getLobby().then((json) => {
-        res.json({ players: json.players, gameready: json.gameready });
+        res.json({ status: json.status, players: json.players, gameready: json.gameready });
     });
 });
 
@@ -33,7 +33,8 @@ router.post('/getGame', function(req, res) {
 
 router.post('/sendPlay', function(req, res) {
     tikki.play(req.body).then((json) => {
-        res.json({ status: json });
+        console.log(json.status);
+        res.json({ status: json.status });
     })
 })
 

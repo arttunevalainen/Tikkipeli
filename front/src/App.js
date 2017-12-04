@@ -13,6 +13,7 @@ class App extends Component {
 
         this.getLoginData = this.getLoginData.bind(this);
         this.getLobbyData = this.getLobbyData.bind(this);
+        this.gameNotReady = this.gameNotReady.bind(this);
     }
 
     getLoginData(data) {
@@ -23,6 +24,10 @@ class App extends Component {
 
     getLobbyData() {
         this.setState({component: "Game"});
+    }
+
+    gameNotReady() {
+        this.setState({component: "Login"});
     }
 
 	render() {
@@ -48,7 +53,8 @@ class App extends Component {
         else if(this.state.component === "Game") {
             return (
                 <Game playername={this.state.playername}
-                      playercode={this.state.playercode}/>
+                      playercode={this.state.playercode}
+                      sendData={this.gameNotReady}/>
             );
         }
         else {

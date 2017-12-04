@@ -8,6 +8,8 @@ class Hand {
     constructor() {
         this.hand = [];
         this.played = [];
+
+        this.playedCards = [];
     }
 
     isEmpty() {
@@ -43,6 +45,7 @@ class Hand {
             hand.objectifyCard(card).then((card) => {
                 hand.searchforcard(card).then((index) => {
                     var a = hand.hand.splice(index, 1);
+                    hand.playedCards.push(a[0]);
                     json.status = 'ok';
                     resolve(json);
                 });

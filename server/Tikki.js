@@ -102,18 +102,22 @@ Tikki.prototype.listPlayers = function() {
 Tikki.prototype.getGame = function(req) {
 
     var tikki = this;
-    var json = {};
 
     return new Promise(function(resolve, reject) {
-        tikki.currentRound.getGame(req).then((json) => {
-            if(json.status === 'ok') {
-                resolve(json);
-            }
-            else {
-                json.status = 'error getting gameinfo';
-                resolve(json);
-            }
-        });
+        if(tikki.currentRound) {
+            tikki.currentRound.getGame(req).then((json) => {
+                if(json.status === 'ok') {
+                    resolve(json);
+                }
+                else {
+                    json.status = 'error getting gameinfo';
+                    resolve(json);
+                }
+            });
+        }
+        else {
+            resolve({ status: 'notready' });
+        }
     }).catch((err) => {
         console.log(err);
     });
@@ -125,12 +129,21 @@ Tikki.prototype.play = function(req) {
     var tikki = this;
     var json = {};
 
-    console.log(req);
-
     return new Promise(function(resolve, reject) {
-        tikki.currentRound.savePlay(req).then((status) => {
-            console.log(status);
-            resolve(status);
+        tikki.currentRound.savePlay(req).then((json) => {
+            if(json.status === 'ok') {
+                tikki.currentRound.isRoundOver().then(() => {
+                    if(tikki.currentRound.roundOver) {
+                        tikki.currentRound.countPoints().then((response) => {
+                            resolve({status: "game ended"});
+                        });
+                    }
+                    else {
+                        console.log(json.status);
+                        resolve(json);
+                    }
+                });
+            }
         });
     }).catch((err) => {
         console.log(err);
