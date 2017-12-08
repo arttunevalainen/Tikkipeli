@@ -105,13 +105,20 @@ Tikki.prototype.getGame = function(req) {
 
     return new Promise(function(resolve, reject) {
         if(tikki.currentRound) {
-            tikki.currentRound.getGame(req).then((json) => {
-                if(json.status === 'ok') {
-                    resolve(json);
+            tikki.currentRound.isRoundOver().then(() => {
+                if(!tikki.currentRound.roundOver) {
+                    tikki.currentRound.getGame(req).then((json) => {
+                        if(json.status === 'ok') {
+                            resolve(json);
+                        }
+                        else {
+                            json.status = 'error getting gameinfo';
+                            resolve(json);
+                        }
+                    });
                 }
                 else {
-                    json.status = 'error getting gameinfo';
-                    resolve(json);
+                    resolve({status: "game ended"});
                 }
             });
         }

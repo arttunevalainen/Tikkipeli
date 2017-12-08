@@ -61,9 +61,11 @@ class Game extends Component {
 
     getCards() {
         var cards = this.state.hand;
-        if(cards !== '' || cards !== undefined) {
-            cards = cards.split("/");
-            cards.pop();
+        if(cards !== '') {
+            if(cards !== undefined) {
+                cards = cards.split("/");
+                cards.pop();
+            }
         }
 
         return cards;
@@ -71,25 +73,30 @@ class Game extends Component {
 
     playercards() {
 
-        if(this.state.hand !== '' || this.state.hand !== undefined) {
+        if(this.state.hand !== '') {
+            if(this.state.hand !== undefined) {
 
-            var cards = this.getCards();
+                var cards = this.getCards();
 
-            var five = (cards[4]);
-            var four = (cards[3]);
-            var three = (cards[2]);
-            var two = (cards[1]);
-            var one = (cards[0]);
+                var five = (cards[4]);
+                var four = (cards[3]);
+                var three = (cards[2]);
+                var two = (cards[1]);
+                var one = (cards[0]);
 
-            return (
-                <div>
-                    {one && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[0] + '.png')} alt="0"/>}
-                    {two && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[1] + '.png')} alt="1"/>}
-                    {three && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[2] + '.png')} alt="2"/>}
-                    {four && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[3] + '.png')} alt="3"/>}
-                    {five && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[4] + '.png')} alt="4"/>}
-                </div>
-            );
+                return (
+                    <div>
+                        {one && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[0] + '.png')} alt="0"/>}
+                        {two && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[1] + '.png')} alt="1"/>}
+                        {three && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[2] + '.png')} alt="2"/>}
+                        {four && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[3] + '.png')} alt="3"/>}
+                        {five && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[4] + '.png')} alt="4"/>}
+                    </div>
+                );
+            }
+            else {
+                return (<div>Waiting...</div>);
+            }
         }
         else {
             return (<div>Waiting...</div>);
