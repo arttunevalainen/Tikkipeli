@@ -39,6 +39,9 @@ class Game extends Component {
                                     plays: data.plays,
                                     currentplayer: data.currentplayer
                     });
+                    if(data.points) {
+                        game.setState({ points: data.points });
+                    }
                 }
                 else {
                     game.props.sendData();
@@ -104,11 +107,16 @@ class Game extends Component {
     }
 
     render() {
+
+        var turn = this.state.currentplayer === this.props.playername;
+
         return (
             <div>
                 <h1>Tikki</h1>
                 {this.playercards()}
                 {this.state.plays}
+                {turn && <p>Your turn!</p>}
+                {this.state.points}
             </div>
         );
     }

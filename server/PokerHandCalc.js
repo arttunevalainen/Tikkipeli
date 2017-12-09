@@ -57,7 +57,6 @@ function pokerHandCalc(hand) {
                                                 resolve(json);
                                             }
                                             else {
-                                                console.log("no hands");
                                                 json.handpoints = 0;
                                                 json.hand = "Highcard + " + getHighest(hand);
                                                 resolve(json);

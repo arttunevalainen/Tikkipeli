@@ -118,7 +118,10 @@ Tikki.prototype.getGame = function(req) {
                     });
                 }
                 else {
-                    resolve({status: "game ended"});
+                    tikki.currentRound.getPoints().then((points) => {
+                        console.log("endgame get");
+                        resolve({ status: "game ended", points: points });
+                    });
                 }
             });
         }
@@ -142,7 +145,11 @@ Tikki.prototype.play = function(req) {
                 tikki.currentRound.isRoundOver().then(() => {
                     if(tikki.currentRound.roundOver) {
                         tikki.currentRound.countPoints().then((response) => {
-                            resolve({status: "game ended"});
+                            console.log(response);
+                            tikki.currentRound.getPoints().then((points) => {
+                                console.log("endgame play");
+                                resolve({ status: "game ended", points: points });
+                            })
                         });
                     }
                     else {
@@ -150,6 +157,10 @@ Tikki.prototype.play = function(req) {
                         resolve(json);
                     }
                 });
+            }
+            else {
+                console.log("error");
+                resolve();
             }
         });
     }).catch((err) => {

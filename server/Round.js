@@ -153,36 +153,37 @@ class Round {
             console.log("counting points");
 
             round.getPlayerIndex(round.plays[0].player).then((index) => {
-                console.log(round.players[index].points);
                 round.players[index].points = round.players[index].points + 3;
 
                 round.checkHands().then((winner) => {
-                    console.log(winner.playername);
+                    console.log(winner);
                     if(winner.playername) {
                         round.getPlayerIndex(winner.playername).then((player) => {
                             if(winner.points !== undefined) {
-                                player.points = player.points + winner.points;
+                                console.log("points");
+                                player.points = player.points + winner.handpoints;
                                 var response = { status: 'ok', winner: besthand };
-                                console.log("kek");
                                 resolve(response);
                             }
-                            var response = { status: 'nopoints' };
-                            resolve(response);
+                            else {
+                                console.log("nopoints");
+                                var response = { status: 'nopoints' };
+                                resolve(response);
+                            }
                         });
-                        resolve();
                     }
                     else {
+                        console.log("no winners");
                         resolve();
                     }
                 });
             });
-            resolve();
-
         }).catch((err) => {
             console.log(err);
         });
     }
 
+    /** Get best pokerhand */
     checkHands() {
         var round = this;
 
@@ -196,23 +197,39 @@ class Round {
             promiseWhile(function() { return i < round.players.length },
                 function() {
                     return new Promise(function(resolve, reject) {
-                    setTimeout(function() {
-                        pokerhandcalc(round.players[i].hand.playedCards).then((card) => {
-                            if(card.handpoints > points) {
-                                name = round.players[i].name;
-                                points = card.handpoints;
-                                besthand = card.hand;
-                            }
-                            resolve(i++)
-                        });
-                    }, 1000)
+                        setTimeout(function() {
+                            pokerhandcalc(round.players[i].hand.playedCards).then((card) => {
+                                if(card.handpoints > points) {
+                                    name = round.players[i].name;
+                                    points = card.handpoints;
+                                    besthand = card.hand;
+                                }
+                                resolve(i++)
+                            });
+                        }, 1000)
                     })
                 })
             .then(function() {
-                console.log(besthand + " " + points + " " + name + " ----");
-                var json = { besthand: besthand, points: points, playername: name };
+                var json = { besthand: besthand, handpoints: points, playername: name };
                 resolve(json);
             });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    getPoints() {
+
+        var round = this;
+
+        return new Promise(function(resolve, reject) {
+            var points = "";
+
+            for(var i = 0; i < round.players.length; i++) {
+                points = points + round.players[i].name + " - " + round.players[i].points + "/";
+            }
+
+            resolve(points);
         }).catch((err) => {
             console.log(err);
         });
