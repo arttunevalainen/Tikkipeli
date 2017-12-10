@@ -160,7 +160,7 @@ Tikki.prototype.play = function(req) {
             }
             else {
                 console.log("error");
-                resolve();
+                resolve({ status: json.status });
             }
         });
     }).catch((err) => {

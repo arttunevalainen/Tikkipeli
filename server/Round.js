@@ -120,15 +120,22 @@ class Round {
                 if(player !== "error") {
                     round.iscurrentplayer(req).then((iscurrent) => {
                         if(iscurrent) {
-                            player.cardPlayed(req.playedcard).then((json) => {
-                                if(json.status === 'ok') {
-                                    round.nextPlayerToPlay().then(() => {
-                                        round.plays.unshift({ player: req.playername, card: req.playedcard });
-                                        resolve({ status : 'ok', currentplayer: round.currentplayer.name });
+                            round.checkRules(req.playedcard, player).then((good) => {
+                                if(good) {
+                                    player.cardPlayed(req.playedcard).then((json) => {
+                                        if(json.status === 'ok') {
+                                            round.nextPlayerToPlay().then(() => {
+                                                round.plays.unshift({ player: req.playername, card: req.playedcard });
+                                                resolve({ status : 'ok', currentplayer: round.currentplayer.name });
+                                            });
+                                        }
+                                        else {
+                                            resolve({ status: "error" });
+                                        }
                                     });
                                 }
                                 else {
-                                    resolve({ status: "error" });
+                                    resolve({ status: "wrongplay" });
                                 }
                             });
                         }
@@ -146,6 +153,20 @@ class Round {
         });
     }
 
+    checkRules(card, player) {
+        var round = this;
+
+        return new Promise(function(resolve, reject) {
+            var a = Card.objectifyCard(card);
+
+            
+            console.log(a);
+            resolve(true);
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
     countPoints() {
         var round = this;
 
@@ -155,7 +176,8 @@ class Round {
             round.getPlayerIndex(round.plays[0].player).then((index) => {
                 round.players[index].points = round.players[index].points + 3;
 
-                round.checkHands().then((winner) => {
+                //BUGI
+                /*round.checkHands().then((winner) => {
                     console.log(winner);
                     if(winner.playername) {
                         round.getPlayerIndex(winner.playername).then((player) => {
@@ -176,7 +198,9 @@ class Round {
                         console.log("no winners");
                         resolve();
                     }
-                });
+                });*/
+
+                resolve({status: 'ok'});
             });
         }).catch((err) => {
             console.log(err);

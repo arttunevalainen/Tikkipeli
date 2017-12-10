@@ -51,15 +51,18 @@ class Game extends Component {
     }
 
     cardClick(event) {
-        this.setState({currentplayer: ''});
 
         var game = this;
         var cards = this.getCards();
 
-        sendPlay(this.props.playername, this.props.playercode, cards[parseInt(event.target.alt, 10)]).then((data) => {
-            console.log(data);
-            game.updateGame();
-        });
+        if(this.state.currentplayer === this.props.playername) {
+            this.setState({currentplayer: ''});
+            
+            sendPlay(this.props.playername, this.props.playercode, cards[parseInt(event.target.alt, 10)]).then((data) => {
+                console.log(data);
+                game.updateGame();
+            });
+        }
     }
 
     getCards() {

@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 
-const address = "http://localhost:8081/";
+const address = "http://192.168.38.200:8081/";
 
 
 export function setupGame(name, code) {
