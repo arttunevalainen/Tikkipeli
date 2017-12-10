@@ -120,12 +120,12 @@ class Round {
                 if(player !== "error") {
                     round.iscurrentplayer(req).then((iscurrent) => {
                         if(iscurrent) {
-                            round.checkRules(req.playedcard, player).then((good) => {
-                                if(good) {
+                            round.checkRules(req.playedcard, player).then((goodplay) => {
+                                if(goodplay) {
                                     player.cardPlayed(req.playedcard).then((json) => {
                                         if(json.status === 'ok') {
+                                            round.plays.unshift({ player: req.playername, card: req.playedcard });
                                             round.nextPlayerToPlay().then(() => {
-                                                round.plays.unshift({ player: req.playername, card: req.playedcard });
                                                 resolve({ status : 'ok', currentplayer: round.currentplayer.name });
                                             });
                                         }
@@ -153,27 +153,113 @@ class Round {
         });
     }
 
+    /** Play by tikki rules */
     checkRules(card, player) {
         var round = this;
 
         return new Promise(function(resolve, reject) {
-            var a = Card.objectifyCard(card);
 
-            
-            console.log(a);
-            resolve(true);
+            var a = new Card('', '');
+            var b = new Card('', '');
+
+            a.objectifyCard(card).then(() => {
+                if(round.startingplayer.name === player.name) {
+                    resolve(true);
+                }
+                else {
+                    round.searchStarterPlayerPlay().then((startingplay) => {
+                        if(startingplay) {
+                    
+                            b.objectifyCard(startingplay.card).then(() => {
+                                if(a.suit === b.suit) {
+                                    round.compareCards(player, a, b).then(() => {
+                                        resolve(true);
+                                    });
+                                }
+                                else {
+                                    round.playerHasPlayableCards(player, b.suit).then((playable) => {
+                                        if(playable) {
+                                            console.log("playable cards");
+                                            resolve(false);
+                                        }
+                                        else {
+                                            console.log("no playable cards");
+                                            resolve(true);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        else {
+                            resolve({status: 'error'});
+                        }
+                    });
+                }
+            });
         }).catch((err) => {
             console.log(err);
         });
     }
 
+    /** Compare cards and change startingplayer if needed */
+    compareCards(player, a, b) {
+
+        var round = this;
+
+        return new Promise(function(resolve, reject) {
+            if(a.number > b.number) {
+                console.log("switch");
+                round.startingplayer = player;
+            }
+            resolve();
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    /** Return true if player has playable cards left in hand */
+    playerHasPlayableCards(player, suit) {
+
+        return new Promise(function(resolve, reject) {
+
+            for(var i = 0; i < player.hand.hand.length; i++) {
+                if(player.hand.hand[i].suit === suit) {
+                    resolve(true);
+                }
+            }
+
+            resolve(false);
+
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    /** Find startingplayer latest play */
+    searchStarterPlayerPlay() {
+
+        var round = this;
+        return new Promise(function(resolve, reject) {
+
+            for(var i = 0; i < round.plays.length; i++) {
+                if(round.plays[i].player === round.startingplayer.name) {
+                    resolve(round.plays[i]);
+                }
+            }
+            resolve(undefined);
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    /** Count tikki points after last play is made */
     countPoints() {
         var round = this;
 
         return new Promise(function(resolve, reject) {
             console.log("counting points");
 
-            round.getPlayerIndex(round.plays[0].player).then((index) => {
+            round.getPlayerIndex(round.startingplayer.name).then((index) => {
                 round.players[index].points = round.players[index].points + 3;
 
                 //BUGI
@@ -242,6 +328,7 @@ class Round {
         });
     }
 
+    /** Return player points as string */
     getPoints() {
 
         var round = this;
@@ -275,21 +362,32 @@ class Round {
         });
     }
 
-    /** Get next player in playing queue */
+    /** Get next player in playing queue or startingplayer to play */
     nextPlayerToPlay() {
         var round =  this;
 
         return new Promise(function(resolve, reject) {
-            round.getPlayerIndex(round.currentplayer.name).then((index) => {
-                if(index+1 === round.players.length) {
-                    round.currentplayer = round.players[0];
-                    resolve();
+
+            console.log(round.plays);
+            if(round.plays.length % round.players.length !== 0) {
+                if(round.plays[0].player === round.currentplayer.name) {
+                    round.getPlayerIndex(round.currentplayer.name).then((index) => {
+                        if(index+1 === round.players.length) {
+                            round.currentplayer = round.players[0];
+                            resolve();
+                        }
+                        else {
+                            round.currentplayer = round.players[index+1];
+                            resolve();
+                        }
+                    });
                 }
-                else {
-                    round.currentplayer = round.players[index+1];
-                    resolve();
-                }
-            });
+            }
+            else {
+                round.currentplayer = round.startingplayer;
+                console.log(round.currentplayer.name);
+                resolve();
+            }
         }).catch((err) => {
             console.log(err);
         });

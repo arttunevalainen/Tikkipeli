@@ -159,7 +159,6 @@ Tikki.prototype.play = function(req) {
                 });
             }
             else {
-                console.log("error");
                 resolve({ status: json.status });
             }
         });

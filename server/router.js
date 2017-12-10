@@ -33,7 +33,6 @@ router.post('/getGame', function(req, res) {
 
 router.post('/sendPlay', function(req, res) {
     tikki.play(req.body).then((json) => {
-        console.log("played");
         res.json({ status: json.status, points: json.points });
     })
 })
