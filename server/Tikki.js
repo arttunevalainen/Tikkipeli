@@ -177,8 +177,6 @@ Tikki.prototype.startGame = function(req) {
 
     return new Promise(function(resolve, reject) {
 
-        var status = "error in starting game";
-
         if(tikki.checkAdmin(playername, playercode)) {
             tikki.startRound().then((ok) => {
                 if(ok === 'ok') {
@@ -188,11 +186,40 @@ Tikki.prototype.startGame = function(req) {
                     resolve(json);
                 }
                 else {
-                    var json = { status: status };
+                    var json = { status: "error in starting game" };
                     resolve(json)
                 }
             });
         }
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Tikki.prototype.startNewRound = function() {
+    var tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        if(tikki.currentRound.roundOver) {
+            tikki.currentRound = new Round(this.players);
+            tikki.currentRound.initiateRound().then((status) => {
+                resolve(status);
+            });
+        }
+
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+/** Select random player to start game */
+Tikki.prototype.getRandomPlayer = function() {
+    var tikki = this;
+    
+    return new Promise(function(resolve, reject) {
+        var random = Math.floor((Math.random() * tikki.players.length));
+        tikki.players[random].starter = true;
+        resolve(tikki.players[random]);
     }).catch((err) => {
         console.log(err);
     });
@@ -213,8 +240,10 @@ Tikki.prototype.startRound = function() {
     tikki.currentRound = new Round(this.players);
 
     return new Promise(function(resolve, reject) {
-        tikki.currentRound.initiateRound().then((status) => {
-            resolve(status);
+        tikki.getRandomPlayer().then((player) => {
+            tikki.currentRound.initiateRound().then((status) => {
+                resolve(status);
+            });
         });
     }).catch((err) => {
         console.log(err);

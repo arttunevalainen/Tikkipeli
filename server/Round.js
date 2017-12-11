@@ -28,7 +28,7 @@ class Round {
         this.deck = new CardDeck();
 
         return new Promise(function(resolve, reject) {
-            round.randomPlayer().then((player) => {
+            round.getStartingPlayer().then((player) => {
                 round.startingplayer = player;
                 round.currentplayer = round.startingplayer;
                 round.deck.shuffle().then(() => {
@@ -75,6 +75,7 @@ class Round {
 
         var allEmpty = true;
         var round = this;
+
         return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.players.length; i++) {
                 if(!round.players[i].hand.isEmpty()) {
@@ -112,7 +113,6 @@ class Round {
 
     /** Player tries to play */
     savePlay(req) {
-
         var round =  this;
 
         return new Promise(function(resolve, reject) {
@@ -179,11 +179,9 @@ class Round {
                                 else {
                                     round.playerHasPlayableCards(player, b.suit).then((playable) => {
                                         if(playable) {
-                                            console.log("playable cards");
                                             resolve(false);
                                         }
                                         else {
-                                            console.log("no playable cards");
                                             resolve(true);
                                         }
                                     });
@@ -208,7 +206,6 @@ class Round {
 
         return new Promise(function(resolve, reject) {
             if(a.number > b.number) {
-                console.log("switch");
                 round.startingplayer = player;
             }
             resolve();
@@ -257,7 +254,6 @@ class Round {
         var round = this;
 
         return new Promise(function(resolve, reject) {
-            console.log("counting points");
 
             round.getPlayerIndex(round.startingplayer.name).then((index) => {
                 round.players[index].points = round.players[index].points + 3;
@@ -456,13 +452,15 @@ class Round {
         });
     }
 
-    /** Select random player */
-    randomPlayer() {
+    getStartingPlayer() {
         var round = this;
-        
+
         return new Promise(function(resolve, reject) {
-            var random = Math.floor((Math.random() * round.players.length));
-            resolve(round.players[random]);
+            for(var i = 0; i < round.players.length; i++) {
+                if(round.players[i].starter) {
+                    resolve(round.players[i]);
+                }
+            }
         }).catch((err) => {
             console.log(err);
         });

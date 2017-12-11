@@ -9,6 +9,7 @@ class Player {
         this.hand;
 
         this.points = 0;
+        this.starter = false;
     }
 
     makeid() {
