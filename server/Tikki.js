@@ -10,6 +10,7 @@ function Tikki() {
 
     this.players = [];
     this.gameready = false;
+    this.gameJustEnded = false;
     this.adminplayer = undefined;
 
     this.currentRound;
@@ -106,7 +107,7 @@ Tikki.prototype.getGame = function(req) {
     return new Promise(function(resolve, reject) {
         if(tikki.currentRound) {
             tikki.currentRound.isRoundOver().then(() => {
-                if(!tikki.currentRound.roundOver) {
+                if(!tikki.gameJustEnded) {
                     tikki.currentRound.getGame(req).then((json) => {
                         if(json.status === 'ok') {
                             resolve(json);
@@ -118,8 +119,7 @@ Tikki.prototype.getGame = function(req) {
                     });
                 }
                 else {
-                    tikki.currentRound.getPoints().then((points) => {
-                        console.log("endgame get");
+                    tikki.getPoints().then((points) => {
                         resolve({ status: "game ended", points: points });
                     });
                 }
@@ -145,15 +145,15 @@ Tikki.prototype.play = function(req) {
                 tikki.currentRound.isRoundOver().then(() => {
                     if(tikki.currentRound.roundOver) {
                         tikki.currentRound.countPoints().then((response) => {
-                            console.log(response);
-                            tikki.currentRound.getPoints().then((points) => {
-                                console.log("endgame play");
-                                resolve({ status: "game ended", points: points });
+                            tikki.getPoints().then((points) => {
+                                tikki.startNewRound().then((status) => {
+                                    tikki.setGameEndTimer();
+                                    resolve({ status: "game ended", points: points });
+                                });
                             })
                         });
                     }
                     else {
-                        console.log(json.status);
                         resolve(json);
                     }
                 });
@@ -165,6 +165,15 @@ Tikki.prototype.play = function(req) {
     }).catch((err) => {
         console.log(err);
     });
+}
+
+/** Functions to create space between old and new round */
+Tikki.prototype.setGameEndTimer = function() {
+    this.gameJustEnded = true;
+    setTimeout(this.endGameEndTimer, 5000, this);
+}
+Tikki.prototype.endGameEndTimer = function(tikki) {
+    tikki.gameJustEnded = false;
 }
 
 /** Start game. Check admin, start round, select starting player, mark that game is ready */
@@ -201,7 +210,7 @@ Tikki.prototype.startNewRound = function() {
 
     return new Promise(function(resolve, reject) {
         if(tikki.currentRound.roundOver) {
-            tikki.currentRound = new Round(this.players);
+            this.currentRound = new Round(this.players);
             tikki.currentRound.initiateRound().then((status) => {
                 resolve(status);
             });
@@ -249,5 +258,26 @@ Tikki.prototype.startRound = function() {
         console.log(err);
     });
 }
+
+/** Return player points as string */
+Tikki.prototype.getPoints = function() {
+    
+    var tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        var points = "";
+
+        for(var i = 0; i < tikki.players.length; i++) {
+            points = points + tikki.players[i].name + " - " + tikki.players[i].points + "/";
+        }
+
+        resolve(points);
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+
+
 
 module.exports = Tikki;

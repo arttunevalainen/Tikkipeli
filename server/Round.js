@@ -27,6 +27,8 @@ class Round {
         var round = this;
         this.deck = new CardDeck();
 
+        round.plays = [];
+
         return new Promise(function(resolve, reject) {
             round.getStartingPlayer().then((player) => {
                 round.startingplayer = player;
@@ -319,24 +321,6 @@ class Round {
                 var json = { besthand: besthand, handpoints: points, playername: name };
                 resolve(json);
             });
-        }).catch((err) => {
-            console.log(err);
-        });
-    }
-
-    /** Return player points as string */
-    getPoints() {
-
-        var round = this;
-
-        return new Promise(function(resolve, reject) {
-            var points = "";
-
-            for(var i = 0; i < round.players.length; i++) {
-                points = points + round.players[i].name + " - " + round.players[i].points + "/";
-            }
-
-            resolve(points);
         }).catch((err) => {
             console.log(err);
         });
