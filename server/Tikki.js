@@ -106,24 +106,22 @@ Tikki.prototype.getGame = function(req) {
 
     return new Promise(function(resolve, reject) {
         if(tikki.currentRound) {
-            tikki.currentRound.isRoundOver().then(() => {
-                if(!tikki.gameJustEnded) {
-                    tikki.currentRound.getGame(req).then((json) => {
-                        if(json.status === 'ok') {
-                            resolve(json);
-                        }
-                        else {
-                            json.status = 'error getting gameinfo';
-                            resolve(json);
-                        }
-                    });
-                }
-                else {
-                    tikki.getPoints().then((points) => {
-                        resolve({ status: "game ended", points: points });
-                    });
-                }
-            });
+            if(!tikki.gameJustEnded) {
+                tikki.currentRound.getGame(req).then((json) => {
+                    if(json.status === 'ok') {
+                        resolve(json);
+                    }
+                    else {
+                        json.status = 'error getting gameinfo';
+                        resolve(json);
+                    }
+                });
+            }
+            else {
+                tikki.getPoints().then((points) => {
+                    resolve({ status: "game ended", points: points });
+                });
+            }
         }
         else {
             resolve({ status: 'notready' });
@@ -272,6 +270,16 @@ Tikki.prototype.getPoints = function() {
         }
 
         resolve(points);
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Tikki.prototype.changeCards = function(req) {
+
+    return new Promise(function(resolve, reject) {
+
+
     }).catch((err) => {
         console.log(err);
     });

@@ -496,7 +496,85 @@ class Round {
             console.log(err);
         });
     }
-    
+
+    /** Players change cards before round start */
+    changeCards(req) {
+
+        var round = this;
+
+        var playername = req.playername;
+        var playercode = req.playercode;
+        var cards = req.cards;
+
+        return new Promise(function(resolve, reject) {
+
+            round.getPlayerObject(playername, playercode).then((player) => {
+                if(cards.length === 0) {
+                    player.changedCards = true;
+                    resolve({status: 'ok'});
+                }
+                else {
+
+                    if(cards.length < 5) {
+
+                        var cards = cards.split("/");
+
+                        for(var i = 0; i < cards.length; i++) {
+                            player.hand.deleteCard(cards[i]);
+                            player.hand.addtoHand(round.deck.draw());
+                        }
+
+                        player.changedCards = true;
+                        resolve({ status: 'ok' });
+                    }
+                    else if(cards.length === 5) {
+                        if(round.legalCardChange(cards)) {
+                            player.hand.hand = [];
+
+                            for(var j = 0; j < 5; j++) {
+                                player.hand.addtoHand(round.deck.draw());
+                            }
+
+                            player.changedCards = true;
+                            resolve({ status: 'ok' });
+                        }
+                        else {
+                            resolve({ status: 'badChange' });
+                        }
+                    }
+                }
+            });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    /** Check for legal five card change */
+    legalCardChange(cards) {
+        if(cards.includes('A') || cards.includes('K') || cards.includes('Q') || cards.includes('J') || cards.includes('T')) {
+            return(false);
+        }
+        else {
+            return(true);
+        }
+    }
+
+    /** Check if all players have changed cards */
+    allPlayersChange() {
+
+        var round = this;
+
+        return new Promise(function(resolve, reject) {
+            for(var i = 0; i < round.players.length; i++) {
+                if(!round.players[i].changeCards) {
+                    resolve(false);
+                }
+            }
+            resolve(true);
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
 }
 
 

@@ -40,7 +40,26 @@ class Hand {
 
         return new Promise(function(resolve, reject) {
 
-            var json = {}
+            var json = {};
+
+            hand.objectifyCard(card).then((card) => {
+                hand.searchforcard(card).then((index) => {
+                    hand.hand.splice(index, 1);
+                    json.status = 'ok';
+                    resolve(json);
+                });
+            });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    cardPlayed(card) {
+        var hand = this;
+
+        return new Promise(function(resolve, reject) {
+
+            var json = {};
 
             hand.objectifyCard(card).then((card) => {
                 hand.searchforcard(card).then((index) => {

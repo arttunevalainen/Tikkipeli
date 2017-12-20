@@ -10,6 +10,8 @@ class Player {
 
         this.points = 0;
         this.starter = false;
+
+        this.changedCards = false;
     }
 
     makeid() {
@@ -35,7 +37,7 @@ class Player {
         var player = this;
 
         return new Promise(function(resolve, reject) {
-            player.hand.deleteCard(card).then((status) => {
+            player.hand.cardPlayed(card).then((status) => {
                 resolve(status);
             });
         }).catch((err) => {
