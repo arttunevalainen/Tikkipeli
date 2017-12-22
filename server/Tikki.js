@@ -5,12 +5,12 @@ var Player = require('./Player.js');
 var Round = require('./Round.js');
 
 
-
+/** TODO: Make this E16 class! */
 function Tikki() {
 
     this.players = [];
     this.gameready = false;
-    this.gameJustEnded = false;
+    this.roundJustEnded = false;
     this.adminplayer = undefined;
 
     this.currentRound;
@@ -104,28 +104,38 @@ Tikki.prototype.getGame = function(req) {
 
     var tikki = this;
 
+    //tikki.startNoConnectionTimer();
     return new Promise(function(resolve, reject) {
-        if(tikki.currentRound) {
-            if(!tikki.gameJustEnded) {
-                tikki.currentRound.getGame(req).then((json) => {
-                    if(json.status === 'ok') {
-                        resolve(json);
+        tikki.gameShouldEnd().then((end) => {
+            if(!end) {
+                if(tikki.currentRound) {
+                    if(!tikki.roundJustEnded) {
+                        tikki.currentRound.getGame(req).then((json) => {
+                            if(json.status === 'ok') {
+                                resolve(json);
+                            }
+                            else {
+                                json.status = 'error getting gameinfo';
+                                resolve(json);
+                            }
+                        });
                     }
                     else {
-                        json.status = 'error getting gameinfo';
-                        resolve(json);
+                        tikki.getPoints().then((points) => {
+                            resolve({ status: "round ended", points: points });
+                        });
                     }
-                });
+                }
+                else {
+                    resolve({ status: 'error' });
+                }
             }
             else {
                 tikki.getPoints().then((points) => {
-                    resolve({ status: "game ended", points: points });
+                    resolve({ status: "Game has ended", points: points });
                 });
             }
-        }
-        else {
-            resolve({ status: 'notready' });
-        }
+        });
     }).catch((err) => {
         console.log(err);
     });
@@ -146,7 +156,7 @@ Tikki.prototype.play = function(req) {
                             tikki.getPoints().then((points) => {
                                 tikki.startNewRound().then((status) => {
                                     tikki.setGameEndTimer();
-                                    resolve({ status: "game ended", points: points });
+                                    resolve({ status: "round ended", points: points });
                                 });
                             })
                         });
@@ -167,16 +177,29 @@ Tikki.prototype.play = function(req) {
 
 /** Functions to create space between old and new round */
 Tikki.prototype.setGameEndTimer = function() {
-    this.gameJustEnded = true;
+    this.roundJustEnded = true;
     setTimeout(this.endGameEndTimer, 5000, this);
 }
 Tikki.prototype.endGameEndTimer = function(tikki) {
-    tikki.gameJustEnded = false;
+    tikki.roundJustEnded = false;
+}
+
+/** Functions to set timer for restarting tikki because of no connections */
+Tikki.prototype.startNoConnectionTimer = function() {
+    clearTimeout(this.connectionTimer);
+    this.connectionTimer = setTimeout(this.noConnections, 60000, this);
+}
+Tikki.prototype.noConnections = function(tikki) {
+    console.log("Tikki restored");
+    tikki.players = [];
+    tikki.gameready = false;
+    tikki.roundJustEnded = false;
+    tikki.adminplayer = undefined;
+    tikki.currentRound = undefined;
 }
 
 /** Start game. Check admin, start round, select starting player, mark that game is ready */
 Tikki.prototype.startGame = function(req) {
-
     var tikki = this;
 
     var playername = req.playername;
@@ -208,12 +231,38 @@ Tikki.prototype.startNewRound = function() {
 
     return new Promise(function(resolve, reject) {
         if(tikki.currentRound.roundOver) {
-            this.currentRound = new Round(this.players);
-            tikki.currentRound.initiateRound().then((status) => {
-                resolve(status);
+            tikki.currentRound = new Round(tikki.players);
+            tikki.setNextStarter().then(() => {
+                tikki.currentRound.initiateRound().then((status) => {
+                    resolve(status);
+                });
             });
         }
 
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+/** Set next startingplayer */
+Tikki.prototype.setNextStarter = function() {
+    var tikki = this;
+    
+    return new Promise(function(resolve, reject) {
+
+        for(var i = 0; i < tikki.players.length; i++) {
+            if(tikki.players[i].starter) {
+                tikki.players[i].starter = false;
+                if(i+1 === tikki.players.length) {
+                    tikki.players[0].starter = true;
+                }
+                else {
+                    tikki.players[i+1].starter = true;
+                }
+
+                resolve();
+            }
+        }
     }).catch((err) => {
         console.log(err);
     });
@@ -280,6 +329,23 @@ Tikki.prototype.changeCards = function(req) {
     return new Promise(function(resolve, reject) {
 
 
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Tikki.prototype.gameShouldEnd = function() {
+
+    var tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        for(var i = 0; i < tikki.players.length; i++) {
+            if(tikki.players[i].points >= 20) {
+                resolve(true);
+            }
+        }
+        resolve(false);
+        
     }).catch((err) => {
         console.log(err);
     });

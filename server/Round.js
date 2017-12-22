@@ -348,7 +348,6 @@ class Round {
 
         return new Promise(function(resolve, reject) {
 
-            console.log(round.plays);
             if(round.plays.length % round.players.length !== 0) {
                 if(round.plays[0].player === round.currentplayer.name) {
                     round.getPlayerIndex(round.currentplayer.name).then((index) => {
@@ -365,7 +364,6 @@ class Round {
             }
             else {
                 round.currentplayer = round.startingplayer;
-                console.log(round.currentplayer.name);
                 resolve();
             }
         }).catch((err) => {
