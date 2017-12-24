@@ -100,12 +100,12 @@ class Round {
 
         return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.plays.length; i++) {
-                if(round.plays[i].player !== playername) {
+                //if(round.plays[i].player !== playername) {
                     recentPlays = recentPlays + round.plays[i].player + " " + round.plays[i].card + "/";
-                }
+                /*}
                 else {
                     resolve(recentPlays);
-                }
+                }*/
             }
             resolve(recentPlays);
         }).catch((err) => {

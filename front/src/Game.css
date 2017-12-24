@@ -1,8 +1,38 @@
 
 
+#gameobjects {
+    margin-top: 40px;
+}
+
+#playingcards {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 #playingcard {
     width: 100px;
     height: 150px;
     border-style: solid;
     border-width: 1px;
+}
+
+#playlist {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#playlistitem {
+    width: 150px;
+    height: 50px;
+}
+
+#pointslistitem {
+    width: 250px;
+    height: 50px;
+}
+
+#pointslist {
+
 }

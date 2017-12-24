@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { getGame, sendPlay } from './RequestService.js';
+import { ListGroup, ListGroupItem } from 'reactstrap';
 import './Game.css';
 
 
@@ -11,9 +12,13 @@ class Game extends Component {
         this.state = {hand: ''};
 
         this.updateGame = this.updateGame.bind(this);
-        this.playercards = this.playercards.bind(this);
+        this.renderplayercards = this.renderplayercards.bind(this);
         this.getCards = this.getCards.bind(this);
         this.cardClick = this.cardClick.bind(this);
+        this.getListofPlays = this.getListofPlays.bind(this);
+        this.renderPlays = this.renderPlays.bind(this);
+        this.getListofPoints = this.getListofPoints.bind(this);
+        this.renderPoints = this.renderPoints.bind(this);
 
         this.updateGame();
     }
@@ -56,10 +61,13 @@ class Game extends Component {
         var cards = this.getCards();
 
         if(this.state.currentplayer === this.props.playername) {
-            this.setState({currentplayer: ''});
+            this.setState({currentplayer: '', badplay: ''});
             
             sendPlay(this.props.playername, this.props.playercode, cards[parseInt(event.target.alt, 10)]).then((data) => {
                 console.log(data);
+                if(data.status === 'wrongplay') {
+                    game.setState({badplay: 'Bad play!'});
+                }
                 game.updateGame();
             });
         }
@@ -77,7 +85,7 @@ class Game extends Component {
         return cards;
     }
 
-    playercards() {
+    renderplayercards() {
 
         if(this.state.hand !== '') {
             if(this.state.hand !== undefined) {
@@ -91,7 +99,7 @@ class Game extends Component {
                 var one = (cards[0]);
 
                 return (
-                    <div>
+                    <div id="playingcards">
                         {one && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[0] + '.png')} alt="0"/>}
                         {two && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[1] + '.png')} alt="1"/>}
                         {three && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[2] + '.png')} alt="2"/>}
@@ -109,17 +117,64 @@ class Game extends Component {
         }
     }
 
+    getListofPlays() {
+        var list = []; 
+
+        if(this.state.plays) {
+            list = this.state.plays.split("/");
+            list.pop();
+        }
+        
+        return list;
+    }
+
+    renderPlays() {
+
+        var listItems = this.getListofPlays();
+
+        const list = listItems.map((name) =>
+            <ListGroupItem id="playlistitem" key={name.toString()}>
+                {name}
+            </ListGroupItem>
+        );
+
+        return <ListGroup id="playlist">{list}</ListGroup>
+    }
+
+    getListofPoints() {
+        var list = []; 
+        
+        if(this.state.points) {
+            list = this.state.points.split("/");
+            list.pop();
+        }
+        
+        return list;
+    }
+
+    renderPoints() {
+        var listItems = this.getListofPoints();
+        
+        const list = listItems.map((name) =>
+            <ListGroupItem id="pointslistitem" key={name.toString()}>
+                {name}
+            </ListGroupItem>
+        );
+
+        return <ListGroup id="pointslist">{list}</ListGroup>
+    }
+
     render() {
 
         var turn = this.state.currentplayer === this.props.playername;
 
         return (
-            <div>
-                <h1>Tikki</h1>
-                {this.playercards()}
-                {this.state.plays}
+            <div id="gameobjects">
+                {this.state.badplay}
+                {this.renderplayercards()}
                 {turn && <p>Your turn!</p>}
-                {this.state.points}
+                {this.renderPlays()}
+                {this.renderPoints()}
             </div>
         );
     }
