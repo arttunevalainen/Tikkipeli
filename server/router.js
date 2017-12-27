@@ -35,7 +35,13 @@ router.post('/sendPlay', function(req, res) {
     tikki.play(req.body).then((json) => {
         res.json({ status: json.status, points: json.points });
     })
-})
+});
+
+router.post('/changeCards', function(req, res) {
+    tikki.changeCards(req.body).then((json) => {
+        res.json({ status: json.status });
+    });
+});
 
 
 

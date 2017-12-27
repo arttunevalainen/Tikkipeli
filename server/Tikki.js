@@ -5,7 +5,7 @@ var Player = require('./Player.js');
 var Round = require('./Round.js');
 
 
-/** TODO: Make this E16 class! */
+/** TODO: Make this E16 class? */
 function Tikki() {
 
     this.players = [];
@@ -111,7 +111,7 @@ Tikki.prototype.getGame = function(req) {
                 if(tikki.currentRound) {
                     if(!tikki.roundJustEnded) {
                         tikki.currentRound.getGame(req).then((json) => {
-                            if(json.status === 'ok') {
+                            if(json.status === 'ok' || json.status === 'changephase') {
                                 resolve(json);
                             }
                             else {
@@ -250,19 +250,22 @@ Tikki.prototype.setNextStarter = function() {
     
     return new Promise(function(resolve, reject) {
 
-        for(var i = 0; i < tikki.players.length; i++) {
-            if(tikki.players[i].starter) {
-                tikki.players[i].starter = false;
-                if(i+1 === tikki.players.length) {
+        tikki.currentRound.getStarterPlayer().then((player) => {
+            player.starter = false;
+            
+            tikki.currentRound.getPlayerIndex(player.name).then((index) => {
+                if(index+1 === tikki.players.length) {
                     tikki.players[0].starter = true;
+                    console.log(tikki.players[0].name + " is starter");
                 }
                 else {
-                    tikki.players[i+1].starter = true;
+                    tikki.players[index+1].starter = true;
+                    console.log(tikki.players[index+1].name + " is starter");
                 }
 
                 resolve();
-            }
-        }
+            });
+        });
     }).catch((err) => {
         console.log(err);
     });
@@ -326,9 +329,13 @@ Tikki.prototype.getPoints = function() {
 
 Tikki.prototype.changeCards = function(req) {
 
+    var tikki = this;
+
     return new Promise(function(resolve, reject) {
-
-
+        console.log(req);
+        tikki.currentRound.changeCards(req).then((status) => {
+            resolve(status);
+        });
     }).catch((err) => {
         console.log(err);
     });

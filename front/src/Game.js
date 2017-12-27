@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { getGame, sendPlay } from './RequestService.js';
-import { ListGroup, ListGroupItem } from 'reactstrap';
+import { getGame, sendPlay, changeCards } from './RequestService.js';
+import { Button, ListGroup, ListGroupItem } from 'reactstrap';
 import './Game.css';
 
 
@@ -11,6 +11,8 @@ class Game extends Component {
 
         this.state = {hand: ''};
 
+        this.cardstochange = [];
+
         this.updateGame = this.updateGame.bind(this);
         this.renderplayercards = this.renderplayercards.bind(this);
         this.getCards = this.getCards.bind(this);
@@ -19,6 +21,7 @@ class Game extends Component {
         this.renderPlays = this.renderPlays.bind(this);
         this.getListofPoints = this.getListofPoints.bind(this);
         this.renderPoints = this.renderPoints.bind(this);
+        this.changeSelectedCards = this.changeSelectedCards.bind(this);
 
         this.updateGame();
     }
@@ -33,12 +36,16 @@ class Game extends Component {
 
     updateGame() {
         var game = this;
-        if(this.state.currentplayer === this.props.playername) {
-            console.log("Your Turn");
-        }
+
         if(this.state.currentplayer !== this.props.playername) {
             getGame(this.props.playername, this.props.playercode).then((data) => {
-                if(data.status !== 'notready') {
+                if(data.status === 'changephase') {
+                    game.setState({ changephase: true,
+                                    players: data.players,
+                                    hand: data.hand
+                    });
+                }
+                else if(data.status === 'ok') {
                     game.setState({ players: data.players,
                                     hand: data.hand,
                                     plays: data.plays,
@@ -48,7 +55,7 @@ class Game extends Component {
                         game.setState({ points: data.points });
                     }
                 }
-                else {
+                else if(data.status === 'notready') {
                     game.props.sendData();
                 }
             });
@@ -60,16 +67,31 @@ class Game extends Component {
         var game = this;
         var cards = this.getCards();
 
-        if(this.state.currentplayer === this.props.playername) {
-            this.setState({currentplayer: '', badplay: ''});
-            
-            sendPlay(this.props.playername, this.props.playercode, cards[parseInt(event.target.alt, 10)]).then((data) => {
-                console.log(data);
-                if(data.status === 'wrongplay') {
-                    game.setState({badplay: 'Bad play!'});
+        if(this.state.changephase) {
+            if(!game.cardstochange.includes(cards[parseInt(event.target.alt, 10)])) {
+                game.cardstochange.push(cards[parseInt(event.target.alt, 10)]);
+            }
+            else {
+                for(var i = 0; i < game.cardstochange.length; i++) {
+                    if(game.cardstochange[i] === cards[parseInt(event.target.alt, 10)]) {
+                        game.cardstochange.splice(i, 1);
+                    }
                 }
-                game.updateGame();
-            });
+            }
+
+            console.log(game.cardstochange);
+        }
+        else {
+            if(this.state.currentplayer === this.props.playername) {
+                this.setState({currentplayer: '', badplay: ''});
+                
+                sendPlay(this.props.playername, this.props.playercode, cards[parseInt(event.target.alt, 10)]).then((data) => {
+                    if(data.status === 'wrongplay') {
+                        game.setState({badplay: 'Bad play!'});
+                    }
+                    game.updateGame();
+                });
+            }
         }
     }
 
@@ -164,6 +186,30 @@ class Game extends Component {
         return <ListGroup id="pointslist">{list}</ListGroup>
     }
 
+    changeSelectedCards() {
+
+        var game = this;
+
+        game.stringifyCardArray(game.cardstochange).then((cardstring) => {
+            changeCards(game.props.playername, game.props.playercode, cardstring).then((data) => {
+                console.log(data);
+            });
+        });
+    }
+
+    stringifyCardArray(cardarray) {
+        return new Promise(function(resolve, reject) {
+            var cards = "";
+            for(var i = 0; i < cardarray.length; i++) {
+                cards = cards + cardarray[i] + "/";
+            }
+
+            resolve(cards);
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
     render() {
 
         var turn = this.state.currentplayer === this.props.playername;
@@ -172,6 +218,7 @@ class Game extends Component {
             <div id="gameobjects">
                 {this.state.badplay}
                 {this.renderplayercards()}
+                {this.state.changephase && <Button type="button" color="success" id="changecardsbutton" onClick={this.changeSelectedCards}>Vaihda kortit</Button>}
                 {turn && <p>Your turn!</p>}
                 {this.renderPlays()}
                 {this.renderPoints()}

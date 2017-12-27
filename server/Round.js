@@ -15,6 +15,7 @@ class Round {
 
         this.plays = [];
 
+        this.changePhase = true;
         this.roundOver = false;
 
         this.startingplayer;
@@ -30,7 +31,7 @@ class Round {
         round.plays = [];
 
         return new Promise(function(resolve, reject) {
-            round.getStartingPlayer().then((player) => {
+            round.getStarterPlayer().then((player) => {
                 round.startingplayer = player;
                 round.currentplayer = round.startingplayer;
                 round.deck.shuffle().then(() => {
@@ -57,14 +58,20 @@ class Round {
         return new Promise(function(resolve, reject) {
             round.getHand(req.playername, req.playercode).then((hand) => {
                 json.hand = hand;
-                json.currentplayer = round.currentplayer.name;
                 round.listPlayers().then((players) =>  {
-                    round.readyPlaysForSending(req.playername).then((plays) => {
-                        json.plays = plays;
-                        json.players = round.players;
-                        json.status = 'ok';
+                    json.players = players;
+                    if(round.changePhase) {
+                        json.status = 'changephase';
                         resolve(json);
-                    })
+                    }
+                    else {
+                        json.currentplayer = round.currentplayer.name;
+                        round.readyPlaysForSending(req.playername).then((plays) => {
+                            json.plays = plays;
+                            json.status = 'ok';
+                            resolve(json);
+                        });
+                    }
                 });
             });
         }).catch((err) => {
@@ -434,7 +441,7 @@ class Round {
         });
     }
 
-    getStartingPlayer() {
+    getStarterPlayer() {
         var round = this;
 
         return new Promise(function(resolve, reject) {
