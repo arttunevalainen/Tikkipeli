@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 
-const address = "http://192.168.1.103:8081/";
+const address = "http://localhost:8081/";
 
 
 export function setupGame(name, code) {
@@ -94,13 +94,13 @@ export function sendPlay(name, code, playedcard) {
 
 export function changeCards(name, code, cards) {
     return new Promise(function(resolve, reject) {
-        console.log(cards);
         axios.post(address + 'changeCards', {
                 playername : name,
                 playercode : code,
                 cards : cards
             })
             .then(function (response) {
+                console.log(response.data);
                 resolve(response.data);
             })
             .catch(function (error) {

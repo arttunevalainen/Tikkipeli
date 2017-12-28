@@ -332,7 +332,6 @@ Tikki.prototype.changeCards = function(req) {
     var tikki = this;
 
     return new Promise(function(resolve, reject) {
-        console.log(req);
         tikki.currentRound.changeCards(req).then((status) => {
             resolve(status);
         });

@@ -13,6 +13,7 @@ class Game extends Component {
 
         this.cardstochange = [];
 
+        this.createUpdateInterval = this.createUpdateInterval.bind(this);
         this.updateGame = this.updateGame.bind(this);
         this.renderplayercards = this.renderplayercards.bind(this);
         this.getCards = this.getCards.bind(this);
@@ -27,11 +28,15 @@ class Game extends Component {
     }
 
     componentDidMount() {
-        this.interval = setInterval(() => this.updateGame(), 3000);
+        this.createUpdateInterval();
     }
 
     componentWillUnmount() {
         clearInterval(this.interval);
+    }
+
+    createUpdateInterval() {
+        this.interval = setInterval(() => this.updateGame(), 3000);
     }
 
     updateGame() {
@@ -40,6 +45,12 @@ class Game extends Component {
         if(this.state.currentplayer !== this.props.playername) {
             getGame(this.props.playername, this.props.playercode).then((data) => {
                 if(data.status === 'changephase') {
+                    if(data.changestatus === 'waiting') {
+                        game.setState({ changecards: true });
+                    }
+                    else if(data.changestatus === 'done') {
+                        game.setState({ changecards: false });
+                    }
                     game.setState({ changephase: true,
                                     players: data.players,
                                     hand: data.hand
@@ -49,7 +60,8 @@ class Game extends Component {
                     game.setState({ players: data.players,
                                     hand: data.hand,
                                     plays: data.plays,
-                                    currentplayer: data.currentplayer
+                                    currentplayer: data.currentplayer,
+                                    changephase: false
                     });
                     if(data.points) {
                         game.setState({ points: data.points });
@@ -192,7 +204,9 @@ class Game extends Component {
 
         game.stringifyCardArray(game.cardstochange).then((cardstring) => {
             changeCards(game.props.playername, game.props.playercode, cardstring).then((data) => {
-                console.log(data);
+                game.cardstochange = [];
+                game.updateGame();
+                //game.createUpdateInterval();
             });
         });
     }
@@ -218,7 +232,7 @@ class Game extends Component {
             <div id="gameobjects">
                 {this.state.badplay}
                 {this.renderplayercards()}
-                {this.state.changephase && <Button type="button" color="success" id="changecardsbutton" onClick={this.changeSelectedCards}>Vaihda kortit</Button>}
+                {this.state.changecards && <Button type="button" color="success" id="changecardsbutton" onClick={this.changeSelectedCards}>Vaihda kortit</Button>}
                 {turn && <p>Your turn!</p>}
                 {this.renderPlays()}
                 {this.renderPoints()}

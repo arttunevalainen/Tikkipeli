@@ -27,7 +27,7 @@ router.post('/setup', function(req, res) {
 
 router.post('/getGame', function(req, res) {
     tikki.getGame(req.body).then((json) => {
-        res.json({ status: json.status, currentplayer: json.currentplayer, hand: json.hand, players: json.players, plays: json.plays, points: json.points });
+        res.json({ status: json.status, currentplayer: json.currentplayer, hand: json.hand, players: json.players, plays: json.plays, points: json.points, changestatus: json.changestatus  });
     });
 });
 
