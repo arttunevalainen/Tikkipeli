@@ -15,7 +15,6 @@ class Player {
     }
 
     makeid() {
-
         var player = this;
 
         return new Promise(function(resolve, reject) {
@@ -33,7 +32,6 @@ class Player {
     }
 
     cardPlayed(card) {
-
         var player = this;
 
         return new Promise(function(resolve, reject) {

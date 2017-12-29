@@ -45,6 +45,7 @@ class Game extends Component {
         if(this.state.currentplayer !== this.props.playername) {
             getGame(this.props.playername, this.props.playercode).then((data) => {
                 if(data.status === 'changephase') {
+                    game.setState({ plays: '' });
                     if(data.changestatus === 'waiting') {
                         game.setState({ changecards: true });
                     }
@@ -63,9 +64,12 @@ class Game extends Component {
                                     currentplayer: data.currentplayer,
                                     changephase: false
                     });
-                    if(data.points) {
-                        game.setState({ points: data.points });
-                    }
+                }
+                else if(data.status === 'round ended') {
+                    game.setState({ players: data.players,
+                                    hand: data.hand,
+                                    plays: data.plays,
+                                    points: data.points });
                 }
                 else if(data.status === 'notready') {
                     game.props.sendData();
@@ -204,9 +208,13 @@ class Game extends Component {
 
         game.stringifyCardArray(game.cardstochange).then((cardstring) => {
             changeCards(game.props.playername, game.props.playercode, cardstring).then((data) => {
-                game.cardstochange = [];
-                game.updateGame();
-                //game.createUpdateInterval();
+                if(data.status === 'ok') {
+                    game.cardstochange = [];
+                    game.updateGame();
+                }
+                else if(data.status === 'badChange') {
+                    console.log("bad change!");
+                }
             });
         });
     }

@@ -5,7 +5,6 @@ var Player = require('./Player.js');
 var Round = require('./Round.js');
 
 
-/** TODO: Make this E16 class? */
 function Tikki() {
 
     this.players = [];
@@ -104,7 +103,7 @@ Tikki.prototype.getGame = function(req) {
 
     var tikki = this;
 
-    //tikki.startNoConnectionTimer();
+    tikki.startNoConnectionTimer();
     return new Promise(function(resolve, reject) {
         tikki.gameShouldEnd().then((end) => {
             if(!end) {
@@ -154,11 +153,9 @@ Tikki.prototype.play = function(req) {
                     if(tikki.currentRound.roundOver) {
                         tikki.currentRound.countPoints().then((response) => {
                             tikki.getPoints().then((points) => {
-                                tikki.startNewRound().then((status) => {
-                                    tikki.setGameEndTimer();
-                                    resolve({ status: "round ended", points: points });
-                                });
-                            })
+                                tikki.setGameEndTimer();
+                                resolve({ status: "round ended", points: points });
+                            });
                         });
                     }
                     else {
@@ -182,6 +179,7 @@ Tikki.prototype.setGameEndTimer = function() {
 }
 Tikki.prototype.endGameEndTimer = function(tikki) {
     tikki.roundJustEnded = false;
+    tikki.startNewRound();
 }
 
 /** Functions to set timer for restarting tikki because of no connections */
@@ -256,11 +254,9 @@ Tikki.prototype.setNextStarter = function() {
             tikki.currentRound.getPlayerIndex(player.name).then((index) => {
                 if(index+1 === tikki.players.length) {
                     tikki.players[0].starter = true;
-                    console.log(tikki.players[0].name + " is starter");
                 }
                 else {
                     tikki.players[index+1].starter = true;
-                    console.log(tikki.players[index+1].name + " is starter");
                 }
 
                 resolve();
@@ -311,7 +307,6 @@ Tikki.prototype.startRound = function() {
 
 /** Return player points as string */
 Tikki.prototype.getPoints = function() {
-    
     var tikki = this;
 
     return new Promise(function(resolve, reject) {
@@ -328,7 +323,6 @@ Tikki.prototype.getPoints = function() {
 }
 
 Tikki.prototype.changeCards = function(req) {
-
     var tikki = this;
 
     return new Promise(function(resolve, reject) {
@@ -341,7 +335,6 @@ Tikki.prototype.changeCards = function(req) {
 }
 
 Tikki.prototype.gameShouldEnd = function() {
-
     var tikki = this;
 
     return new Promise(function(resolve, reject) {

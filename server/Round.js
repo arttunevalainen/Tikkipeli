@@ -38,12 +38,29 @@ class Round {
                     round.initiateHands().then((hands) => {
                         round.drawHands(hands).then((hands) => {
                             round.handsforplayers(hands).then(() => {
-                                resolve('ok');
+                                round.newChangeRound().then((status) => {
+                                    if(status === 'ok') {
+                                        resolve('ok');
+                                    }
+                                })
                             });
                         });
                     });
                 });
             });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    newChangeRound() {
+        var round = this;
+        
+        return new Promise(function(resolve, reject) {
+            for(var i = 0; i < round.players.length; i++) {
+                round.players[i].changedCards = false;
+            }
+            resolve('ok');
         }).catch((err) => {
             console.log(err);
         });
@@ -57,41 +74,36 @@ class Round {
     
         return new Promise(function(resolve, reject) {
             round.getHand(req.playername, req.playercode).then((hand) => {
-                if(hand) {
-                    json.hand = hand;
-                    round.listPlayers().then((players) =>  {
-                        json.players = players;
-                        if(round.changePhase) {
-                            round.allPlayersChanged().then((ready) => {
-                                if(ready) {
-                                    round.changePhase = false;
+                json.hand = hand;
+                round.listPlayers().then((players) =>  {
+                    json.players = players;
+                    if(round.changePhase) {
+                        round.allPlayersChanged().then((ready) => {
+                            if(ready) {
+                                round.changePhase = false;
+                            }
+                            json.status = 'changephase';
+                            round.playerHasChanged(req.playername, req.playercode).then((changed) => {
+                                if(changed) {
+                                    json.changestatus = 'done';
+                                    resolve(json);
                                 }
-                                json.status = 'changephase';
-                                round.playerHasChanged(req.playername, req.playercode).then((changed) => {
-                                    if(changed) {
-                                        json.changestatus = 'done';
-                                        resolve(json);
-                                    }
-                                    else {
-                                        json.changestatus = 'waiting';
-                                        resolve(json);
-                                    }
-                                });
+                                else {
+                                    json.changestatus = 'waiting';
+                                    resolve(json);
+                                }
                             });
-                        }
-                        else {
-                            json.currentplayer = round.currentplayer.name;
-                            round.readyPlaysForSending(req.playername).then((plays) => {
-                                json.plays = plays;
-                                json.status = 'ok';
-                                resolve(json);
-                            });
-                        }
-                    });
-                }
-                else {
-                    resolve({ status: 'error' });
-                }
+                        });
+                    }
+                    else {
+                        json.currentplayer = round.currentplayer.name;
+                        round.readyPlaysForSending(req.playername).then((plays) => {
+                            json.plays = plays;
+                            json.status = 'ok';
+                            resolve(json);
+                        });
+                    }
+                });
             });
         }).catch((err) => {
             console.log(err);
@@ -229,7 +241,6 @@ class Round {
 
     /** Compare cards and change startingplayer if needed */
     compareCards(player, a, b) {
-
         var round = this;
 
         return new Promise(function(resolve, reject) {
@@ -262,8 +273,8 @@ class Round {
 
     /** Find startingplayer latest play */
     searchStarterPlayerPlay() {
-
         var round = this;
+
         return new Promise(function(resolve, reject) {
 
             for(var i = 0; i < round.plays.length; i++) {
@@ -490,7 +501,6 @@ class Round {
 
     /** Draw hands */
     drawHands(hands) {
-
         var round = this;
 
         return new Promise(function(resolve, reject) {
@@ -507,7 +517,6 @@ class Round {
 
     /** Initiate hands */
     initiateHands() {
-
         var round = this;
 
         return new Promise(function(resolve, reject) {
@@ -523,7 +532,6 @@ class Round {
 
     /** Players change cards before round start */
     changeCards(req) {
-
         var round = this;
 
         var playername = req.playername;
@@ -532,8 +540,8 @@ class Round {
         return new Promise(function(resolve, reject) {
             round.getPlayerObject(playername, playercode).then((player) => {
                 if(!player.changedCards) {
-                    var cards = req.cards;
-                    var cards = cards.split("/");
+                    var stringcards = req.cards;
+                    var cards = stringcards.split("/");
                     cards.pop();
         
                     if(cards.length === 0) {
@@ -544,15 +552,18 @@ class Round {
                         if(cards.length < 5) {
 
                             for(var i = 0; i < cards.length; i++) {
-                                player.hand.deleteCard(cards[i]);
                                 player.hand.addtoHand(round.deck.draw());
                             }
+
+                            cards.reduce((chain, card) => {
+                                return chain.then(() => player.hand.deleteCard(card));
+                            }, Promise.resolve());
 
                             player.changedCards = true;
                             resolve({ status: 'ok' });
                         }
                         else if(cards.length === 5) {
-                            if(round.legalCardChange(cards)) {
+                            if(round.legalCardChange(stringcards)) {
                                 player.hand.hand = [];
 
                                 for(var j = 0; j < 5; j++) {
@@ -589,7 +600,6 @@ class Round {
 
     /** Check if all players have changed cards */
     allPlayersChanged() {
-
         var round = this;
 
         return new Promise(function(resolve, reject) {
@@ -610,7 +620,6 @@ class Round {
 
         return new Promise(function(resolve, reject)  {
             round.getPlayerObject(playername, playercode).then((player) => {
-                console.log(player);
                 if(player.changedCards) {
                     resolve(true);
                 }

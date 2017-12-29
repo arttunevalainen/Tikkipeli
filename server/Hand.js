@@ -27,7 +27,7 @@ class Hand {
     getPoker() {
         var h = this;
         return new Promise(function(resolve, reject) {
-            pokerHandCalc(this.hand).then((hand) => {
+            pokerHandCalc(h.hand).then((hand) => {
                 resolve(hand);
             });
         }).catch((err) => {
@@ -38,21 +38,32 @@ class Hand {
     deleteCard(card) {
         var hand = this;
 
-        return new Promise(function(resolve, reject) {
-
-            var json = {};
+        return new Promise(function(resolve) {
 
             hand.objectifyCard(card).then((card) => {
                 hand.searchforcard(card).then((index) => {
                     hand.hand.splice(index, 1);
-                    json.status = 'ok';
-                    resolve(json);
+                    resolve({status: 'ok'});
                 });
             });
         }).catch((err) => {
             console.log(err);
         });
     }
+
+    /*deletecards(cards) {
+        var hand = this;
+
+        return new Promise(function(resolve) {
+
+            for(var i = 0; i < cards.length; i++) {
+
+            }
+            resolve({status: 'ok'});
+        }).catch((err) => {
+            console.log(err);
+        });
+    }*/
 
     cardPlayed(card) {
         var hand = this;
@@ -76,7 +87,6 @@ class Hand {
 
     /** Returns index of card in this hand */
     searchforcard(card) {
-
         var hand = this;
 
         return new Promise(function(resolve, reject) {
@@ -130,6 +140,7 @@ class Hand {
 
     stringHand() {
         var hand = this.hand;
+        
         return new Promise(function(resolve, reject) {
             var stringhand = ""
             for (var i = 0; i < hand.length; i++) {

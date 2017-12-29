@@ -49,7 +49,6 @@ class Card {
     }
 
     objectifyCard(card) {
-
         var c = this;
 
         return new Promise(function(resolve, reject) {

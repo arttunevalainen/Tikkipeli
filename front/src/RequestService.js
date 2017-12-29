@@ -6,7 +6,6 @@ const address = "http://localhost:8081/";
 
 
 export function setupGame(name, code) {
-
     return new Promise(function(resolve, reject) {
         axios.post(address + 'setup', {
                 playername: name,
@@ -24,7 +23,6 @@ export function setupGame(name, code) {
 }
 
 export function newPlayer(name) {
-
     return new Promise(function(resolve, reject) {
         axios.post(address + 'addplayer', {
                 playername : name
@@ -41,7 +39,6 @@ export function newPlayer(name) {
 }
 
 export function getLobby() {
-
     return new Promise(function(resolve, reject) {
         axios.get(address + 'getlobby')
             .then(function (response) {
@@ -56,7 +53,6 @@ export function getLobby() {
 }
 
 export function getGame(name, code) {
-
     return new Promise(function(resolve, reject) {
         axios.post(address + 'getGame', {
                 playername: name,
@@ -74,7 +70,6 @@ export function getGame(name, code) {
 }
 
 export function sendPlay(name, code, playedcard) {
-    
     return new Promise(function(resolve, reject) {
         axios.post(address + 'sendPlay', {
                 playername : name,
@@ -100,7 +95,6 @@ export function changeCards(name, code, cards) {
                 cards : cards
             })
             .then(function (response) {
-                console.log(response.data);
                 resolve(response.data);
             })
             .catch(function (error) {
