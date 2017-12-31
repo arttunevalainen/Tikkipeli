@@ -11,6 +11,7 @@ function pokerHandCalc(hand) {
             isStraightFlush(hand).then((sf) => {
                 if(sf.status) {
                     json.hand = "StraightFlush";
+                    json.comparable = 8;
                     json.handhigh = sf.handhigh;
                     resolve(json);
                 }
@@ -18,6 +19,7 @@ function pokerHandCalc(hand) {
                     isQuads(hand).then((qds) => {
                         if(qds.status) {
                             json.hand = "Quads";
+                            json.comparable = 7;
                             json.handhigh = qds.handhigh;
                             resolve(json);
                         }
@@ -25,6 +27,7 @@ function pokerHandCalc(hand) {
                             isFullHouse(hand).then((fh) => {
                                 if(fh.status) {
                                     json.hand = "FullHouse";
+                                    json.comparable = 6;
                                     json.handhigh = fh.handhigh;
                                     json.handlow = fh.handlow;
                                     resolve(json);
@@ -33,6 +36,7 @@ function pokerHandCalc(hand) {
                                     isFlush(hand).then((flush) => {
                                         if(flush.status) {
                                             json.hand = "Flush";
+                                            json.comparable = 5;
                                             json.handhigh = flush.handhigh;
                                             resolve(json);
                                         }
@@ -40,6 +44,7 @@ function pokerHandCalc(hand) {
                                             isStraigth(hand).then((stra) => {
                                                 if(stra.status) {
                                                     json.hand = "Straigth";
+                                                    json.comparable = 4;
                                                     json.handhigh = stra.handhigh;
                                                     resolve(json);
                                                 }
@@ -47,6 +52,7 @@ function pokerHandCalc(hand) {
                                                     isTrips(hand).then((trips) => {
                                                         if(trips.status) {
                                                             json.hand = "Trips";
+                                                            json.comparable = 3;
                                                             json.handhigh = trips.handhigh;
                                                             resolve(json);
                                                         }
@@ -54,6 +60,7 @@ function pokerHandCalc(hand) {
                                                             isTwopairs(hand).then((twopairs) => {
                                                                 if(twopairs.status) {
                                                                     json.hand = "TwoPairs";
+                                                                    json.comparable = 2;
                                                                     json.handhigh = twopairs.handhigh;
                                                                     json.handlow = twopairs.handlow;
                                                                     resolve(json);
@@ -62,14 +69,16 @@ function pokerHandCalc(hand) {
                                                                     isPairs(hand).then((pairs) => {
                                                                         if(pairs.status) {
                                                                             json.hand = "Pair";
+                                                                            json.comparable = 1;
                                                                             json.handhigh = pairs.handhigh;
                                                                             json.high = pairs.high;
-                                                                            json.middle = pairs.middle;
+                                                                            json.mid = pairs.mid;
                                                                             json.low = pairs.low;
                                                                             resolve(json);
                                                                         }
                                                                         else {
                                                                             json.hand = "Highcard + " + getHighest(hand);
+                                                                            json.comparable = 0;
                                                                             resolve(json);
                                                                         }
                                                                     });
@@ -150,7 +159,7 @@ function isFullHouse(hand) {
 function isFlush(hand) {
     return new Promise(function(resolve, reject) {
         if(hand[0].getSuit() === hand[1].getSuit() && hand[0].getSuit() === hand[2].getSuit() && hand[0].getSuit() === hand[3].getSuit() && hand[0].getSuit() === hand[4].getSuit()) {
-            resolve({ status: true, handhigh: hand[4].getSuit() });
+            resolve({ status: true, handhigh: hand[4].getNumber() });
         }
         else {
             resolve({ status: false });
@@ -167,7 +176,7 @@ function isStraigth(hand) {
         }
         else if(hand[4].getNumber() === 14) {
             if(hand[0].getNumber() === 2 && hand[1].getNumber() === 3 && hand[2].getNumber() === 4 && hand[3].getNumber() === 5) {
-                resolve({ status: true, handhigh: '5' });
+                resolve({ status: true, handhigh: hand[3].getNumber() });
             }
             else {
                 resolve({ status: false });
@@ -244,7 +253,7 @@ function isPairs(hand) {
                         other.sort(function(a, b) {
                             return a - b;
                         });
-                        resolve({ status: true, handhigh: number, high: other[2], middle: other[1], low: other[0] });
+                        resolve({ status: true, handhigh: number, high: other[2], mid: other[1], low: other[0] });
                     }
                 }
             }

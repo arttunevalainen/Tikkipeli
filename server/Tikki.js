@@ -15,7 +15,7 @@ function Tikki() {
     this.currentRound;
 
     /** CONST ATTRIBUTES */
-    this.maxplayers = 8;
+    this.maxplayers = 6;
 
 }
 
@@ -35,7 +35,7 @@ Tikki.prototype.addPlayer = function(req) {
             }
         }
         
-        if(!nameTaken && name.length > 2 && tikki.players.length < tikki.maxplayers) {
+        if(!nameTaken && name.length > 2 && tikki.players.length <= tikki.maxplayers) {
             var a = new Player(name);
 
             var isadmin = "false";
@@ -154,7 +154,15 @@ Tikki.prototype.play = function(req) {
                         tikki.currentRound.countPoints().then((response) => {
                             tikki.getPoints().then((points) => {
                                 tikki.setGameEndTimer();
-                                resolve({ status: "round ended", points: points });
+                                resolve({
+                                            status: "round ended",
+                                            points: points,
+                                            tikkiwinner: response.tikkiwinner,
+                                            twoend: response.twoend,
+                                            pokerwinner: response.pokerwinner,
+                                            winninghand: response.hand,
+                                            winningcards: response.cards
+                                        });
                             });
                         });
                     }
@@ -205,19 +213,21 @@ Tikki.prototype.startGame = function(req) {
 
     return new Promise(function(resolve, reject) {
 
-        if(tikki.checkAdmin(playername, playercode)) {
-            tikki.startRound().then((ok) => {
-                if(ok === 'ok') {
-                    tikki.gameready = true;
-
-                    var json = { status: 'ok' };
-                    resolve(json);
-                }
-                else {
-                    var json = { status: "error in starting game" };
-                    resolve(json)
-                }
-            });
+        if(tikki.players.length > 1) {
+            if(tikki.checkAdmin(playername, playercode)) {
+                tikki.startRound().then((ok) => {
+                    if(ok === 'ok') {
+                        tikki.gameready = true;
+                        resolve({ status: 'ok' });
+                    }
+                    else {
+                        resolve({ status: 'error in starting game' });
+                    }
+                });
+            }
+        }
+        else {
+            resolve({ status: 'not enough players' });
         }
     }).catch((err) => {
         console.log(err);

@@ -85,7 +85,7 @@ class Lobby extends Component {
 
         return (
             <div id="lobby">
-                {this.state.playercount} / 8
+                {this.state.playercount} / 6
                 {this.listLobby()}
                 {admin &&
                     <Button type="button" color="success" id="readybutton" onClick={this.readyClicked}>Pelaamaan</Button>

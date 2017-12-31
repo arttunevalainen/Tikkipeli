@@ -30,7 +30,7 @@ class Round {
 
         round.plays = [];
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             round.getStarterPlayer().then((player) => {
                 round.startingplayer = player;
                 round.currentplayer = round.startingplayer;
@@ -56,7 +56,7 @@ class Round {
     newChangeRound() {
         var round = this;
         
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for(var i = 0; i < round.players.length; i++) {
                 round.players[i].changedCards = false;
             }
@@ -72,7 +72,7 @@ class Round {
         var round = this;
         var json = {};
     
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             round.getHand(req.playername, req.playercode).then((hand) => {
                 json.hand = hand;
                 round.listPlayers().then((players) =>  {
@@ -116,7 +116,7 @@ class Round {
         var allEmpty = true;
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for(var i = 0; i < round.players.length; i++) {
                 if(!round.players[i].hand.isEmpty()) {
                     allEmpty = false;
@@ -136,7 +136,7 @@ class Round {
         var recentPlays = "";
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for(var i = 0; i < round.plays.length; i++) {
                 //if(round.plays[i].player !== playername) {
                     recentPlays = recentPlays + round.plays[i].player + " " + round.plays[i].card + "/";
@@ -155,7 +155,7 @@ class Round {
     savePlay(req) {
         var round =  this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             round.getPlayerObject(req.playername, req.playercode).then((player) => {
                 if(player !== "error") {
                     round.iscurrentplayer(req).then((iscurrent) => {
@@ -215,7 +215,7 @@ class Round {
     checkRules(card, player) {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
 
             var a = new Card('', '');
             var b = new Card('', '');
@@ -261,7 +261,7 @@ class Round {
     compareCards(player, a, b) {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             if(a.number > b.number) {
                 round.startingplayer = player;
             }
@@ -274,7 +274,7 @@ class Round {
     /** Return true if player has playable cards left in hand */
     playerHasPlayableCards(player, suit) {
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
 
             for(var i = 0; i < player.hand.hand.length; i++) {
                 if(player.hand.hand[i].suit === suit) {
@@ -293,7 +293,7 @@ class Round {
     searchStarterPlayerPlay() {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
 
             for(var i = 0; i < round.plays.length; i++) {
                 if(round.plays[i].player === round.startingplayer.name) {
@@ -310,15 +310,21 @@ class Round {
     countPoints() {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
-
+        return new Promise(function(resolve) {
             round.getPlayerIndex(round.startingplayer.name).then((index) => {
                 round.players[index].points = round.players[index].points + 3;
+                var tikkiwinner = round.players[index].name;
 
-                round.endingWithTwo().then(() => {
-                    round.checkHands().then((winner) => {
-                        console.log(winner);
-                        resolve({status: 'ok'});
+                round.endingWithTwo().then((twoend) => {
+                    round.checkHands().then((status) => {
+                        var cards = round.players[status.winner].hand.playedCards.stringHand();
+                        var pokerwinner = round.players[status.winner].name;
+                        resolve({ status: 'ok',
+                                  tikkiwinner: tikkiwinner,
+                                  twoend: twoend,
+                                  pokerwinner: pokerwinner,
+                                  hand: round.players[status.winner].hand.poker.hand,
+                                  cards: cards });
                     });
                 });
             });
@@ -330,26 +336,106 @@ class Round {
     /** Get best pokerhand */
     checkHands() {
         var round = this;
-        
-        /**
-         * VÄRISUORA 10p
-         * NELOSET 10p
-         * TÄYSIKÄSI 6p
-         * VÄRI 5p
-         * SUORA 4p
-         * KOLMOSET 3p
-         * KAKSIPARIA 2p
-         * PARI 1p
-         */
 
-        return new Promise(function(resolve, reject) {
-            var besthand = "";
-            var points = 0;
-            var name = "";
+        return new Promise(function(resolve) {
+            var besthand = {comparable: 0};
+            var ownerofbesthand = 0;
 
-            var i = 0;
+            for(var i = 0; i < round.players.length; i++) {
+                var playerhand = round.players[i].hand;
+                if(playerhand.poker.comparable > besthand.comparable) {
+                    besthand = playerhand.poker;
+                    ownerofbesthand = i;
+                }
+                else if(playerhand.poker.comparable === besthand.comparable && besthand.comparable !== 0) {
+                    if(playerhand.poker.handhigh > besthand.handhigh) {
+                        besthand = playerhand.poker;
+                        ownerofbesthand = i;
+                    }
+                    else if(playerhand.poker.hand === "TwoPairs") {
+                        if(playerhand.poker.handlow > besthand.handlow) {
+                            besthand = playerhand.poker;
+                            ownerofbesthand = i;
+                        }
+                    }
+                    else if(playerhand.poker.hand === "Pair") {
+                        if(playerhand.poker.high > besthand.high) {
+                            besthand = playerhand.poker;
+                            ownerofbesthand = i;
+                        }
+                        else if(playerhand.poker.mid > besthand.mid) {
+                            besthand = playerhand.poker;
+                            ownerofbesthand = i;
+                        }
+                        else if(playerhand.poker.low > besthand.low) {
+                            besthand = playerhand.poker;
+                            ownerofbesthand = i;
+                        }
+                    }
+                }
+            }
 
-            resolve({ name: name, points: points, besthand: besthand });
+            /**
+             * VÄRISUORA 10p
+             * NELOSET 10p
+             * TÄYSIKÄSI 6p
+             * VÄRI 5p
+             * SUORA 4p
+             * KOLMOSET 3p
+             * KAKSIPARIA 2p
+             * PARI 1p
+             */
+            var owner = round.players[ownerofbesthand];
+            if(besthand.hand === "StraightFlush") {
+                owner.points = owner.points + 10;
+            }
+            else if(besthand.hand === "Quads") {
+                owner.points = owner.points + 10;
+            }
+            else if(besthand.hand === "FullHouse") {
+                owner.points = owner.points + 6;
+            }
+            else if(besthand.hand === "Flush") {
+                owner.points = owner.points + 5;
+            }
+            else if(besthand.hand === "Straigth") {
+                owner.points = owner.points + 4;
+            }
+            else if(besthand.hand === "Trips") {
+                owner.points = owner.points + 3;
+            }
+            else if(besthand.hand === "TwoPairs") {
+                owner.points = owner.points + 2;
+            }
+            else if(besthand.hand === "Pair") {
+                owner.points = owner.points + 1;
+            }
+
+            resolve({ status: 'ok', winner: ownerofbesthand });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    /** End round with 2 - rule */
+    endingWithTwo() {
+        var round = this;
+
+        return new Promise(function(resolve) {
+            round.getPlayerIndex(round.startingplayer.name).then((index) => {
+                if(round.players[index].hand.playedCards[0].getNumber() === 2) {
+                    for(var i = 0; i < round.players.length; i++) {
+                        if(i !== index) {
+                            round.players[i].points = round.players[i].points - 3;
+                        }
+                    }
+                    resolve(true);
+                }
+                else {
+                    resolve(false);
+                }
+            });
+            resolve();
         }).catch((err) => {
             console.log(err);
         });
@@ -359,7 +445,7 @@ class Round {
     iscurrentplayer(req) {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             if(round.currentplayer.name === req.playername && round.currentplayer.code === req.playercode) {
                 resolve(true);
             }
@@ -375,7 +461,7 @@ class Round {
     nextPlayerToPlay() {
         var round =  this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
 
             if(round.plays.length % round.players.length !== 0) {
                 if(round.plays[0].player === round.currentplayer.name) {
@@ -404,7 +490,7 @@ class Round {
     getPlayerIndex(playername) {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for (var i = 0; i < round.players.length; i++) {
                 if(round.players[i].name === playername) {
                     resolve(i);
@@ -420,7 +506,7 @@ class Round {
     getPlayerObject(name, code) {
         var round =  this;
         
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for(var i = 0; i < round.players.length; i++) {
                 if(round.players[i].name === name && round.players[i].code === code) {
                     resolve(round.players[i]);
@@ -436,7 +522,7 @@ class Round {
     listPlayers() {
         var round = this;
     
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             var players = "";
             for(var i = 0; i < round.players.length; i++) {
                 players = players + round.players[i].name + "/";
@@ -451,7 +537,7 @@ class Round {
     getHand(name, playercode) {
         var round = this;
         
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for(var i = 0; i < round.players.length; i++) {
                 if(round.players[i].name === name && round.players[i].code === playercode) {
                     resolve(round.players[i].hand.stringHand());
@@ -466,7 +552,7 @@ class Round {
     getStarterPlayer() {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for(var i = 0; i < round.players.length; i++) {
                 if(round.players[i].starter) {
                     resolve(round.players[i]);
@@ -481,7 +567,7 @@ class Round {
     handsforplayers(hands) {
         var round = this;
         
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for(var i = 0; i < round.players.length; i++) {
                 round.players[i].hand = hands[i];
             }
@@ -495,7 +581,7 @@ class Round {
     drawHands(hands) {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for(var k = 0; k < hands.length; k++) {
                 for(var m = 0; m < 5; m++) {
                     hands[k].addtoHand(round.deck.draw());
@@ -511,7 +597,7 @@ class Round {
     initiateHands() {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             var hands = [];
             for(var j = 0; j < round.players.length; j++) {
                 hands.push(new Hand());
@@ -529,7 +615,7 @@ class Round {
         var playername = req.playername;
         var playercode = req.playercode;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             round.getPlayerObject(playername, playercode).then((player) => {
                 if(!player.changedCards) {
                     var stringcards = req.cards;
@@ -594,7 +680,7 @@ class Round {
     allPlayersChanged() {
         var round = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             for(var i = 0; i < round.players.length; i++) {
                 if(!round.players[i].changedCards) {
                     resolve(false);
@@ -610,7 +696,7 @@ class Round {
     playerHasChanged(playername, playercode) {
         var round = this;
 
-        return new Promise(function(resolve, reject)  {
+        return new Promise(function(resolve)  {
             round.getPlayerObject(playername, playercode).then((player) => {
                 if(player.changedCards) {
                     resolve(true);
