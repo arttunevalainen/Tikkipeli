@@ -30,9 +30,7 @@ class Hand {
         var h = this;
         return new Promise(function(resolve) {
             h.copyHandForPoker().then((copy) => {
-                console.log("ossi");
                 pokerHandCalc(copy).then((poker) => {
-                    console.log("kek");
                     h.poker = poker;
                     resolve();
                 });

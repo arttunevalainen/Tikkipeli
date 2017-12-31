@@ -26,7 +26,6 @@ function pokerHandCalc(hand) {
                                 if(fh.status) {
                                     json.hand = "FullHouse";
                                     json.handhigh = fh.handhigh;
-                                    json.handhighcount = fh.handhighcount;
                                     json.handlow = fh.handlow;
                                     resolve(json);
                                 }
@@ -100,7 +99,7 @@ function isStraightFlush(hand) {
             if(flush.status) {
                 isStraigth(hand).then((straight) => {
                     if(straight.status) {
-                        resolve({ status: true });
+                        resolve({ status: true, handhigh: straight.handhigh });
                     }
                     else {
                         resolve({ status: false });
@@ -119,10 +118,10 @@ function isStraightFlush(hand) {
 function isQuads(hand) {
     return new Promise(function(resolve, reject) {
         if(hand[0].getNumber() === hand[1].getNumber() && hand[0].getNumber() === hand[2].getNumber() && hand[0].getNumber() === hand[3].getNumber()) {
-            resolve({ status: true });
+            resolve({ status: true, handhigh: hand[0].getNumber() });
         }
         else if(hand[1].getNumber() === hand[2].getNumber() && hand[1].getNumber() === hand[3].getNumber() && hand[1].getNumber() === hand[4].getNumber()) {
-            resolve({ status: true });
+            resolve({ status: true, handhigh: hand[1].getNumber() });
         }
         else {
             resolve({ status: false });
@@ -135,10 +134,10 @@ function isQuads(hand) {
 function isFullHouse(hand) {
     return new Promise(function(resolve, reject) {
         if(hand[0].getNumber() === hand[1].getNumber() && hand[0].getNumber() === hand[2].getNumber() && hand[3].getNumber() === hand[4].getNumber()) {
-            resolve({ status: true });
+            resolve({ status: true, handhigh: hand[3].getNumber(), handlow: hand[0].getNumber() });
         }
         else if(hand[2].getNumber() === hand[3].getNumber() && hand[2].getNumber() === hand[4].getNumber() && hand[0].getNumber() === hand[1].getNumber()) {
-            resolve({ status: true });
+            resolve({ status: true, handhigh: hand[2].getNumber(), handlow: hand[0].getNumber() });
         }
         else {
             resolve({ status: false });
@@ -162,14 +161,16 @@ function isFlush(hand) {
 }
 
 function isStraigth(hand) {
-
     return new Promise(function(resolve, reject) {
         if(hand[0].getNumber() === hand[1].getNumber()-1 && hand[0].getNumber() === hand[2].getNumber()-2 && hand[0].getNumber() === hand[3].getNumber()-3 && hand[0].getNumber() === hand[4].getNumber()-4) {
             resolve({ status: true, handhigh: hand[4].getNumber() });
         }
         else if(hand[4].getNumber() === 14) {
             if(hand[0].getNumber() === 2 && hand[1].getNumber() === 3 && hand[2].getNumber() === 4 && hand[3].getNumber() === 5) {
-                resolve({ status: true, handhigh: 5 });
+                resolve({ status: true, handhigh: '5' });
+            }
+            else {
+                resolve({ status: false });
             }
         }
         else {
@@ -183,10 +184,10 @@ function isStraigth(hand) {
 function isTrips(hand) {
     return new Promise(function(resolve, reject) {
         if(hand[0].getNumber() === hand[1].getNumber() && hand[0].getNumber() === hand[2].getNumber()) {
-            resolve({ status: true, handhigh: hand[0].getNumber()});
+            resolve({ status: true, handhigh: hand[0].getNumber() });
         }
         else if(hand[1].getNumber() === hand[2].getNumber() && hand[1].getNumber() === hand[3].getNumber()) {
-            resolve({ status: true, handhigh: hand[1].getNumber()});
+            resolve({ status: true, handhigh: hand[1].getNumber() });
         }
         else if(hand[2].getNumber() === hand[3].getNumber() && hand[2].getNumber() === hand[4].getNumber()) {
             resolve({ status: true, handhigh: hand[2].getNumber() });
@@ -217,7 +218,7 @@ function isTwopairs(hand) {
         }
         for(var j = stopped; j < hand.length; j++) {
             if(hand[j].getNumber() === number) {
-                resolve({ status: true, handhigh: number, handlow: number });
+                resolve({ status: true, handhigh: number, handlow: low });
             }
             else {
                 number = hand[j].getNumber();
@@ -234,7 +235,18 @@ function isPairs(hand) {
         var number = hand[0].getNumber();
         for(var i = 1; i < hand.length; i++) {
             if(hand[i].getNumber() === number) {
-                resolve({ status: true, handhigh: number });
+                var other = [];
+                for(var j = 0; j < hand.length; j++) {
+                    if(hand[j].getNumber() !== number) {
+                        other.push(hand[j].getNumber());
+                    }
+                    if(j + 1 === hand.length) {
+                        other.sort(function(a, b) {
+                            return a - b;
+                        });
+                        resolve({ status: true, handhigh: number, high: other[2], middle: other[1], low: other[0] });
+                    }
+                }
             }
             else {
                 number = hand[i].getNumber();
