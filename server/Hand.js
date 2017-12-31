@@ -10,6 +10,8 @@ class Hand {
         this.played = [];
 
         this.playedCards = [];
+
+        this.poker = '';
     }
 
     isEmpty() {
@@ -24,12 +26,33 @@ class Hand {
         return this.hand;
     }
 
-    getPoker() {
+    setPoker() {
         var h = this;
-        return new Promise(function(resolve, reject) {
-            pokerHandCalc(h.hand).then((hand) => {
-                resolve(hand);
+        return new Promise(function(resolve) {
+            h.copyHandForPoker().then((copy) => {
+                console.log("ossi");
+                pokerHandCalc(copy).then((poker) => {
+                    console.log("kek");
+                    h.poker = poker;
+                    resolve();
+                });
             });
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    copyHandForPoker() {
+        var h = this;
+
+        return new Promise(function(resolve) {
+            var copy = [];
+            for(var i = 0; i < h.hand.length; i++) {
+                var c = new Card(h.hand[i].getSuit(), h.hand[i].getNumber());
+                copy.push(c);
+            }
+
+            resolve(copy);
         }).catch((err) => {
             console.log(err);
         });

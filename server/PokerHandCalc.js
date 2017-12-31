@@ -2,72 +2,91 @@
 const Card = require('./Card.js');
 
 
-
+/** Pokerhand calculator. Give array of five (5) Card objects and this will calculate pokerhand for it with highcards ect */
 function pokerHandCalc(hand) {
     return new Promise(function(resolve, reject) {
         sortHand(hand).then(() => {
             var json = {};
 
             isStraightFlush(hand).then((sf) => {
-                if(sf) {
-                    json.handpoints = 10;
+                if(sf.status) {
                     json.hand = "StraightFlush";
+                    json.handhigh = sf.handhigh;
                     resolve(json);
                 }
-                isQuads(hand).then((qds) => {
-                    if(qds) {
-                        json.handpoints = 10;
-                        json.hand = "Quads";
-                        resolve(json);
-                    }
-                    isFullHouse(hand).then((fh) => {
-                        if(fh) {
-                            json.handpoints = 6;
-                            json.hand = "FullHouse";
+                else {
+                    isQuads(hand).then((qds) => {
+                        if(qds.status) {
+                            json.hand = "Quads";
+                            json.handhigh = qds.handhigh;
                             resolve(json);
                         }
-                        isFlush(hand).then((flush) => {
-                            if(flush) {
-                                json.handpoints = 5;
-                                json.hand = "Flush";
-                                resolve(json);
-                            }
-                            isStraigth(hand).then((stra) => {
-                                if(stra) {
-                                    json.handpoints = 4;
-                                    json.hand = "Straigth";
+                        else {
+                            isFullHouse(hand).then((fh) => {
+                                if(fh.status) {
+                                    json.hand = "FullHouse";
+                                    json.handhigh = fh.handhigh;
+                                    json.handhighcount = fh.handhighcount;
+                                    json.handlow = fh.handlow;
                                     resolve(json);
                                 }
-                                isTrips(hand).then((trips) => {
-                                    if(trips) {
-                                        json.handpoints = 3;
-                                        json.hand = "Trips";
-                                        resolve(json);
-                                    }
-                                    isTwopairs(hand).then((twopairs) => {
-                                        if(twopairs) {
-                                            json.handpoints = 2;
-                                            json.hand = "TwoPairs";
+                                else {
+                                    isFlush(hand).then((flush) => {
+                                        if(flush.status) {
+                                            json.hand = "Flush";
+                                            json.handhigh = flush.handhigh;
                                             resolve(json);
                                         }
-                                        isPairs(hand).then((pairs) => {
-                                            if(pairs) {
-                                                json.handpoints = 1;
-                                                json.hand = "Pair";
-                                                resolve(json);
-                                            }
-                                            else {
-                                                json.handpoints = 0;
-                                                json.hand = "Highcard + " + getHighest(hand);
-                                                resolve(json);
-                                            }
-                                        });
+                                        else {
+                                            isStraigth(hand).then((stra) => {
+                                                if(stra.status) {
+                                                    json.hand = "Straigth";
+                                                    json.handhigh = stra.handhigh;
+                                                    resolve(json);
+                                                }
+                                                else {
+                                                    isTrips(hand).then((trips) => {
+                                                        if(trips.status) {
+                                                            json.hand = "Trips";
+                                                            json.handhigh = trips.handhigh;
+                                                            resolve(json);
+                                                        }
+                                                        else {
+                                                            isTwopairs(hand).then((twopairs) => {
+                                                                if(twopairs.status) {
+                                                                    json.hand = "TwoPairs";
+                                                                    json.handhigh = twopairs.handhigh;
+                                                                    json.handlow = twopairs.handlow;
+                                                                    resolve(json);
+                                                                }
+                                                                else {
+                                                                    isPairs(hand).then((pairs) => {
+                                                                        if(pairs.status) {
+                                                                            json.hand = "Pair";
+                                                                            json.handhigh = pairs.handhigh;
+                                                                            json.high = pairs.high;
+                                                                            json.middle = pairs.middle;
+                                                                            json.low = pairs.low;
+                                                                            resolve(json);
+                                                                        }
+                                                                        else {
+                                                                            json.hand = "Highcard + " + getHighest(hand);
+                                                                            resolve(json);
+                                                                        }
+                                                                    });
+                                                                }
+                                                            });
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
                                     });
-                                });
+                                }
                             });
-                        });
+                        }
                     });
-                });
+                }
             });
         });
     }).catch((err) => {
@@ -78,18 +97,18 @@ function pokerHandCalc(hand) {
 function isStraightFlush(hand) {
     return new Promise(function(resolve, reject) {
         isFlush(hand).then((flush) => {
-            if(flush) {
+            if(flush.status) {
                 isStraigth(hand).then((straight) => {
-                    if(straight) {
-                        resolve(true);
+                    if(straight.status) {
+                        resolve({ status: true });
                     }
                     else {
-                        resolve(false);
+                        resolve({ status: false });
                     }
                 });
             }
             else {
-                resolve(false);
+                resolve({ status: false });
             }
         });
     }).catch((err) => {
@@ -100,13 +119,13 @@ function isStraightFlush(hand) {
 function isQuads(hand) {
     return new Promise(function(resolve, reject) {
         if(hand[0].getNumber() === hand[1].getNumber() && hand[0].getNumber() === hand[2].getNumber() && hand[0].getNumber() === hand[3].getNumber()) {
-            resolve(true);
+            resolve({ status: true });
         }
         else if(hand[1].getNumber() === hand[2].getNumber() && hand[1].getNumber() === hand[3].getNumber() && hand[1].getNumber() === hand[4].getNumber()) {
-            resolve(true);
+            resolve({ status: true });
         }
         else {
-            resolve(false);
+            resolve({ status: false });
         }
     }).catch((err) => {
         console.log(err);
@@ -116,13 +135,13 @@ function isQuads(hand) {
 function isFullHouse(hand) {
     return new Promise(function(resolve, reject) {
         if(hand[0].getNumber() === hand[1].getNumber() && hand[0].getNumber() === hand[2].getNumber() && hand[3].getNumber() === hand[4].getNumber()) {
-            resolve(true);
+            resolve({ status: true });
         }
         else if(hand[2].getNumber() === hand[3].getNumber() && hand[2].getNumber() === hand[4].getNumber() && hand[0].getNumber() === hand[1].getNumber()) {
-            resolve(true);
+            resolve({ status: true });
         }
         else {
-            resolve(false);
+            resolve({ status: false });
         }
     }).catch((err) => {
         console.log(err);
@@ -130,13 +149,12 @@ function isFullHouse(hand) {
 }
 
 function isFlush(hand) {
-
     return new Promise(function(resolve, reject) {
         if(hand[0].getSuit() === hand[1].getSuit() && hand[0].getSuit() === hand[2].getSuit() && hand[0].getSuit() === hand[3].getSuit() && hand[0].getSuit() === hand[4].getSuit()) {
-            resolve(true);
+            resolve({ status: true, handhigh: hand[4].getSuit() });
         }
         else {
-            resolve(false);
+            resolve({ status: false });
         }
     }).catch((err) => {
         console.log(err);
@@ -147,15 +165,15 @@ function isStraigth(hand) {
 
     return new Promise(function(resolve, reject) {
         if(hand[0].getNumber() === hand[1].getNumber()-1 && hand[0].getNumber() === hand[2].getNumber()-2 && hand[0].getNumber() === hand[3].getNumber()-3 && hand[0].getNumber() === hand[4].getNumber()-4) {
-            resolve(true);
+            resolve({ status: true, handhigh: hand[4].getNumber() });
         }
         else if(hand[4].getNumber() === 14) {
             if(hand[0].getNumber() === 2 && hand[1].getNumber() === 3 && hand[2].getNumber() === 4 && hand[3].getNumber() === 5) {
-                resolve(true);
+                resolve({ status: true, handhigh: 5 });
             }
         }
         else {
-            resolve(false);
+            resolve({ status: false });
         }
     }).catch((err) => {
         console.log(err);
@@ -165,16 +183,16 @@ function isStraigth(hand) {
 function isTrips(hand) {
     return new Promise(function(resolve, reject) {
         if(hand[0].getNumber() === hand[1].getNumber() && hand[0].getNumber() === hand[2].getNumber()) {
-            resolve(true);
+            resolve({ status: true, handhigh: hand[0].getNumber()});
         }
         else if(hand[1].getNumber() === hand[2].getNumber() && hand[1].getNumber() === hand[3].getNumber()) {
-            resolve(true);
+            resolve({ status: true, handhigh: hand[1].getNumber()});
         }
         else if(hand[2].getNumber() === hand[3].getNumber() && hand[2].getNumber() === hand[4].getNumber()) {
-            resolve(true);
+            resolve({ status: true, handhigh: hand[2].getNumber() });
         }
         else {
-            resolve(false);
+            resolve({ status: false });
         }
     }).catch((err) => {
         console.log(err);
@@ -185,11 +203,13 @@ function isTwopairs(hand) {
     return new Promise(function(resolve, reject) {
         var number = hand[0].getNumber();
         var stopped = 0;
+        var low = 0;
         for(var i = 1; i < hand.length; i++) {
             if(hand[i].getNumber() === number) {
                 number = hand[i].getNumber();
                 stopped = i+1;
                 i = hand.length;
+                low = number;
             }
             else {
                 number = hand[i].getNumber();
@@ -197,13 +217,13 @@ function isTwopairs(hand) {
         }
         for(var j = stopped; j < hand.length; j++) {
             if(hand[j].getNumber() === number) {
-                resolve(true);
+                resolve({ status: true, handhigh: number, handlow: number });
             }
             else {
                 number = hand[j].getNumber();
             }
         }
-        resolve(false);
+        resolve({ status: false });
     }).catch((err) => {
         console.log(err);
     });
@@ -214,13 +234,13 @@ function isPairs(hand) {
         var number = hand[0].getNumber();
         for(var i = 1; i < hand.length; i++) {
             if(hand[i].getNumber() === number) {
-                resolve(true);
+                resolve({ status: true, handhigh: number });
             }
             else {
                 number = hand[i].getNumber();
             }
         }
-        resolve(false);
+        resolve({ status: false });
     }).catch((err) => {
         console.log(err);
     });
@@ -231,8 +251,7 @@ function getHighest(hand) {
 }
 
 function sortHand(hand) {
-
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
         for(var i = 0; i < hand.length-1; i++) {
             for(var j = i+1; j < hand.length; j++) {
                 if(hand[i].getNumber() > hand[j].getNumber()) {

@@ -162,17 +162,35 @@ class Round {
                         if(iscurrent) {
                             round.checkRules(req.playedcard, player).then((goodplay) => {
                                 if(goodplay) {
-                                    player.cardPlayed(req.playedcard).then((json) => {
-                                        if(json.status === 'ok') {
-                                            round.plays.unshift({ player: req.playername, card: req.playedcard });
-                                            round.nextPlayerToPlay().then(() => {
-                                                resolve({ status : 'ok', currentplayer: round.currentplayer.name });
+                                    if(player.hand.poker === '') {
+                                        player.hand.setPoker().then(() => {
+                                            console.log(player.hand.poker);
+                                            player.cardPlayed(req.playedcard).then((json) => {
+                                                if(json.status === 'ok') {
+                                                    round.plays.unshift({ player: req.playername, card: req.playedcard });
+                                                    round.nextPlayerToPlay().then(() => {
+                                                        resolve({ status : 'ok', currentplayer: round.currentplayer.name });
+                                                    });
+                                                }
+                                                else {
+                                                    resolve({ status: "error" });
+                                                }
                                             });
-                                        }
-                                        else {
-                                            resolve({ status: "error" });
-                                        }
-                                    });
+                                        });
+                                    }
+                                    else {
+                                        player.cardPlayed(req.playedcard).then((json) => {
+                                            if(json.status === 'ok') {
+                                                round.plays.unshift({ player: req.playername, card: req.playedcard });
+                                                round.nextPlayerToPlay().then(() => {
+                                                    resolve({ status : 'ok', currentplayer: round.currentplayer.name });
+                                                });
+                                            }
+                                            else {
+                                                resolve({ status: "error" });
+                                            }
+                                        });
+                                    }
                                 }
                                 else {
                                     resolve({ status: "wrongplay" });
@@ -288,7 +306,7 @@ class Round {
         });
     }
 
-    /** Count tikki points after last play is made */
+    /** Count points after last play is made */
     countPoints() {
         var round = this;
 
@@ -297,31 +315,12 @@ class Round {
             round.getPlayerIndex(round.startingplayer.name).then((index) => {
                 round.players[index].points = round.players[index].points + 3;
 
-                //BUGI
-                /*round.checkHands().then((winner) => {
-                    console.log(winner);
-                    if(winner.playername) {
-                        round.getPlayerIndex(winner.playername).then((player) => {
-                            if(winner.points !== undefined) {
-                                console.log("points");
-                                player.points = player.points + winner.handpoints;
-                                var response = { status: 'ok', winner: besthand };
-                                resolve(response);
-                            }
-                            else {
-                                console.log("nopoints");
-                                var response = { status: 'nopoints' };
-                                resolve(response);
-                            }
-                        });
-                    }
-                    else {
-                        console.log("no winners");
-                        resolve();
-                    }
-                });*/
-
-                resolve({status: 'ok'});
+                round.endingWithTwo().then(() => {
+                    round.checkHands().then((winner) => {
+                        console.log(winner);
+                        resolve({status: 'ok'});
+                    });
+                });
             });
         }).catch((err) => {
             console.log(err);
@@ -331,6 +330,17 @@ class Round {
     /** Get best pokerhand */
     checkHands() {
         var round = this;
+        
+        /**
+         * VÄRISUORA 10p
+         * NELOSET 10p
+         * TÄYSIKÄSI 6p
+         * VÄRI 5p
+         * SUORA 4p
+         * KOLMOSET 3p
+         * KAKSIPARIA 2p
+         * PARI 1p
+         */
 
         return new Promise(function(resolve, reject) {
             var besthand = "";
@@ -338,26 +348,8 @@ class Round {
             var name = "";
 
             var i = 0;
-            
-            promiseWhile(function() { return i < round.players.length },
-                function() {
-                    return new Promise(function(resolve, reject) {
-                        setTimeout(function() {
-                            pokerhandcalc(round.players[i].hand.playedCards).then((card) => {
-                                if(card.handpoints > points) {
-                                    name = round.players[i].name;
-                                    points = card.handpoints;
-                                    besthand = card.hand;
-                                }
-                                resolve(i++)
-                            });
-                        }, 1000)
-                    })
-                })
-            .then(function() {
-                var json = { besthand: besthand, handpoints: points, playername: name };
-                resolve(json);
-            });
+
+            resolve({ name: name, points: points, besthand: besthand });
         }).catch((err) => {
             console.log(err);
         });
@@ -388,12 +380,12 @@ class Round {
             if(round.plays.length % round.players.length !== 0) {
                 if(round.plays[0].player === round.currentplayer.name) {
                     round.getPlayerIndex(round.currentplayer.name).then((index) => {
-                        if(index+1 === round.players.length) {
+                        if(index + 1 === round.players.length) {
                             round.currentplayer = round.players[0];
                             resolve();
                         }
                         else {
-                            round.currentplayer = round.players[index+1];
+                            round.currentplayer = round.players[index + 1];
                             resolve();
                         }
                     });
