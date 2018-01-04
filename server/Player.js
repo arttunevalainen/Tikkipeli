@@ -6,11 +6,10 @@ class Player {
     constructor(name) {
         this.name = name;
         this.code = "";
-        this.hand;
 
+        this.hand;
         this.points = 0;
         this.starter = false;
-
         this.changedCards = false;
     }
 
@@ -21,8 +20,9 @@ class Player {
             var text = "";
             var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
         
-            for (var i = 0; i < 6; i++)
+            for (var i = 0; i < 6; i++) {
                 text += possible.charAt(Math.floor(Math.random() * possible.length));
+            }
 
             player.code = text;
             resolve();

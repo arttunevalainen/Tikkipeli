@@ -25,7 +25,7 @@ class Round {
     /** Start round */
     initiateRound() {
 
-        var round = this;
+        let round = this;
         this.deck = new CardDeck();
 
         round.plays = [];
@@ -317,8 +317,10 @@ class Round {
 
                 round.endingWithTwo().then((twoend) => {
                     round.checkHands().then((status) => {
-                        var cards = round.players[status.winner].hand.playedCards.stringHand();
-                        var pokerwinner = round.players[status.winner].name;
+                        var winnerIndex = status.winner;
+                        var cards = round.players[winnerIndex].hand.stringifyPlayedCards();
+                        var pokerwinner = round.players[winnerIndex].name;
+
                         resolve({ status: 'ok',
                                   tikkiwinner: tikkiwinner,
                                   twoend: twoend,
@@ -540,7 +542,7 @@ class Round {
         return new Promise(function(resolve) {
             for(var i = 0; i < round.players.length; i++) {
                 if(round.players[i].name === name && round.players[i].code === playercode) {
-                    resolve(round.players[i].hand.stringHand());
+                    resolve(round.players[i].hand.stringifyHand());
                 }
             }
             resolve();

@@ -2,34 +2,53 @@ var express = require('express');
 var path = require('path');
 var router = express.Router();
 var Tikki = require('./Tikki.js');
+var Lobbies = require('./Lobbies.js');
 
 
 var tikki = new Tikki();
+var lobbies = new Lobbies();
 
 
 router.post('/addplayer', function(req, res) {
-    tikki.addPlayer(req.body).then((json) => {
+    lobbies.newPlayer(req.body).then((json) => {
         res.json({  status: json.status, 
                     name: json.name, playercode: 
-                    json.playercode, 
-                    admin: json.admin });
+                    json.playercode });
     });
 });
 
-router.get('/getlobby', function(req, res) {
-    tikki.getLobby().then((json) => {
+router.get('/getLobbies', function(req, res) {
+    lobbies.getLobbies().then((json) => {
+        res.json({ status: json.status, lobs: json.lobs });
+    });
+});
+
+router.post('/createLobby', function(req, res) {
+    lobbies.createNewLobby(req.body).then((json) => {
+        res.json({ status: json.status, admin: json.admin, lobbycode: json.lobbycode });
+    });
+});
+
+router.post('/joinLobby', function(req, res) {
+    lobbies.joinLobby(req.body).then((json) => {
+        res.json({ status: json.status, admin: json.admin, lobbycode: json.lobbycode });
+    });
+});
+
+router.post('/getlobby', function(req, res) {
+    lobbies.getLobby(req.body).then((json) => {
         res.json({ status: json.status, players: json.players, gameready: json.gameready });
     });
 });
 
 router.post('/setup', function(req, res) {
-    tikki.startGame(req.body).then((json) => {
+    lobbies.startGame(req.body).then((json) => {
         res.json({ status: json.status });
     });
 });
 
 router.post('/getGame', function(req, res) {
-    tikki.getGame(req.body).then((json) => {
+    lobbies.getGame(req.body).then((json) => {
         res.json({  status: json.status, 
                     currentplayer: json.currentplayer, 
                     hand: json.hand, 
@@ -41,7 +60,7 @@ router.post('/getGame', function(req, res) {
 });
 
 router.post('/sendPlay', function(req, res) {
-    tikki.play(req.body).then((json) => {
+    lobbies.play(req.body).then((json) => {
         res.json({  status: json.status, 
                     points: json.points,
                     tikkiwinner: json.tikkiwinner,
@@ -53,7 +72,7 @@ router.post('/sendPlay', function(req, res) {
 });
 
 router.post('/changeCards', function(req, res) {
-    tikki.changeCards(req.body).then((json) => {
+    lobbies.changeCards(req.body).then((json) => {
         res.json({ status: json.status });
     });
 });

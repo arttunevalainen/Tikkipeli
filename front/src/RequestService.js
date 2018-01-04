@@ -5,11 +5,26 @@ import axios from 'axios';
 const address = "http://localhost:8081/";
 
 
-export function setupGame(name, code) {
+export function getLobbies() {
     return new Promise(function(resolve, reject) {
+        axios.get(address + 'getLobbies')
+            .then(function (response) {
+                resolve(response.data);
+            })
+            .catch(function (error) {
+                console.log(error)
+            });
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+export function setupGame(name, code, lobbycode) {
+    return new Promise(function(resolve) {
         axios.post(address + 'setup', {
                 playername: name,
-                playercode: code
+                playercode: code,
+                lobbycode: lobbycode
             })
             .then(function (response) {
                 resolve(response.data);
@@ -23,9 +38,9 @@ export function setupGame(name, code) {
 }
 
 export function newPlayer(name) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
         axios.post(address + 'addplayer', {
-                playername : name
+                playername: name
             })
             .then(function (response) {
                 resolve(response.data);
@@ -38,9 +53,13 @@ export function newPlayer(name) {
     });
 }
 
-export function getLobby() {
-    return new Promise(function(resolve, reject) {
-        axios.get(address + 'getlobby')
+export function getLobby(name, code, lobbycode) {
+    return new Promise(function(resolve) {
+        axios.post(address + 'getlobby', {
+                playername: name,
+                playercode: code,
+                lobbycode: lobbycode
+            })
             .then(function (response) {
                 resolve(response.data);
             })
@@ -52,9 +71,9 @@ export function getLobby() {
     });
 }
 
-export function getGame(name, code) {
-    return new Promise(function(resolve, reject) {
-        axios.post(address + 'getGame', {
+export function createLobby(name, code) {
+    return new Promise(function(resolve) {
+        axios.post(address + 'createLobby', {
                 playername: name,
                 playercode: code
             })
@@ -69,12 +88,12 @@ export function getGame(name, code) {
     });
 }
 
-export function sendPlay(name, code, playedcard) {
-    return new Promise(function(resolve, reject) {
-        axios.post(address + 'sendPlay', {
-                playername : name,
-                playercode : code,
-                playedcard : playedcard
+export function joinLobby(name, code, lobbyid) {
+    return new Promise(function(resolve) {
+        axios.post(address + 'joinLobby', {
+                playername: name,
+                playercode: code,
+                lobbyid: lobbyid  
             })
             .then(function (response) {
                 resolve(response.data);
@@ -87,12 +106,50 @@ export function sendPlay(name, code, playedcard) {
     });
 }
 
-export function changeCards(name, code, cards) {
-    return new Promise(function(resolve, reject) {
+export function getGame(name, code, lobbycode,) {
+    return new Promise(function(resolve) {
+        axios.post(address + 'getGame', {
+                playername: name,
+                playercode: code,
+                lobbycode: lobbycode
+            })
+            .then(function (response) {
+                resolve(response.data);
+            })
+            .catch(function (error) {
+                console.log(error)
+            });
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+export function sendPlay(name, code, lobbycode, playedcard) {
+    return new Promise(function(resolve) {
+        axios.post(address + 'sendPlay', {
+                playername : name,
+                playercode : code,
+                playedcard : playedcard,
+                lobbycode: lobbycode
+            })
+            .then(function (response) {
+                resolve(response.data);
+            })
+            .catch(function (error) {
+                console.log(error)
+            });
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+export function changeCards(name, code, lobbycode, cards) {
+    return new Promise(function(resolve) {
         axios.post(address + 'changeCards', {
                 playername : name,
                 playercode : code,
-                cards : cards
+                cards : cards,
+                lobbycode: lobbycode
             })
             .then(function (response) {
                 resolve(response.data);

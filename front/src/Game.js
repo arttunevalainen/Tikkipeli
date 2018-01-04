@@ -43,7 +43,7 @@ class Game extends Component {
         var game = this;
 
         if(this.state.currentplayer !== this.props.playername) {
-            getGame(this.props.playername, this.props.playercode).then((data) => {
+            getGame(this.props.playername, this.props.playercode, game.props.lobbycode).then((data) => {
                 if(data.status === 'changephase') {
                     game.setState({ plays: '' });
                     if(data.changestatus === 'waiting') {
@@ -101,7 +101,7 @@ class Game extends Component {
             if(this.state.currentplayer === this.props.playername) {
                 this.setState({currentplayer: '', badplay: ''});
                 
-                sendPlay(this.props.playername, this.props.playercode, cards[parseInt(event.target.alt, 10)]).then((data) => {
+                sendPlay(this.props.playername, this.props.playercode, game.props.lobbycode, cards[parseInt(event.target.alt, 10)]).then((data) => {
                     if(data.status === 'wrongplay') {
                         game.setState({badplay: 'Bad play!'});
                     }
@@ -207,7 +207,7 @@ class Game extends Component {
         var game = this;
 
         game.stringifyCardArray(game.cardstochange).then((cardstring) => {
-            changeCards(game.props.playername, game.props.playercode, cardstring).then((data) => {
+            changeCards(game.props.playername, game.props.playercode, game.props.lobbycode, cardstring).then((data) => {
                 if(data.status === 'ok') {
                     game.cardstochange = [];
                     game.updateGame();

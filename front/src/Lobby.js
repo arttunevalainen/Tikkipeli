@@ -29,11 +29,12 @@ class Lobby extends Component {
     }
 
     savePlayers() {
-        var lobby = this;
+        let lobby = this;
+
         this.makeplayerlist().then(function(data) {
             lobby.setState({players: data.players, gameready: data.gameready});
 
-            var listlen = lobby.getListofPlayers().length;
+            let listlen = lobby.getListofPlayers().length;
             lobby.setState({playercount : listlen});
 
             if(lobby.state.gameready === "true") {
@@ -44,8 +45,10 @@ class Lobby extends Component {
     }
 
     makeplayerlist() {
+        let lobby = this;
+
         return new Promise(function(resolve, reject) {
-            getLobby().then((data) => {
+            getLobby(lobby.props.playername, lobby.props.playercode, lobby.props.lobbycode).then((data) => {
                 resolve(data);
             });
         }).catch((err) => {
@@ -54,7 +57,7 @@ class Lobby extends Component {
     }
 
     getListofPlayers() {
-        var list = []; 
+        let list = []; 
 
         list = this.state.players.split("/");
         list.pop();
@@ -63,7 +66,7 @@ class Lobby extends Component {
     }
 
     listLobby() {
-        var listItems = this.getListofPlayers();
+        let listItems = this.getListofPlayers();
         
         const list = listItems.map((name) =>
             <ListGroupItem id="listitem" key={name.toString()}>
@@ -75,13 +78,14 @@ class Lobby extends Component {
     }
 
     readyClicked() {
-        setupGame(this.props.playername, this.props.playercode).then((data) => {
-            this.props.sendData();
+        let lobby = this;
+        setupGame(this.props.playername, this.props.playercode, this.props.lobbycode).then((data) => {
+            lobby.props.sendData();
         });
     }
 
     render() {
-        var admin = (this.props.admin === "true");
+        let admin = (this.props.admin === "true");
 
         return (
             <div id="lobby">

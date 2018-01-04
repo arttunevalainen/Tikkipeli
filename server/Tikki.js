@@ -13,48 +13,51 @@ function Tikki() {
     this.adminplayer = undefined;
 
     this.currentRound;
+    this.code;
 
     /** CONST ATTRIBUTES */
     this.maxplayers = 6;
-
 }
 
 /** Add new player to the lobby */
-Tikki.prototype.addPlayer = function(req) {
+Tikki.prototype.addPlayer = function(player) {
+    let tikki = this;
 
-    var tikki = this;
+    return new Promise(function(resolve) {
+        if(!tikki.gameready) {
 
-    return new Promise(function(resolve, reject) {
+            tikki.players.push(player);
 
-        var nameTaken = false;
-        var name =  req.playername;
-
-        for(var i = 0; i < tikki.players.length; i++) {
-            if(tikki.players[i].name === name) {
-                nameTaken = true;
-            }
-        }
-        
-        if(!nameTaken && name.length > 2 && tikki.players.length <= tikki.maxplayers) {
-            var a = new Player(name);
-
-            var isadmin = "false";
-            if(tikki.players.length === 0) {
-                tikki.adminplayer = a;
+            let isadmin = "false";
+            if(tikki.players.length === 1) {
+                tikki.adminplayer = player;
                 isadmin = "true";
             }
 
-            tikki.players.push(a);
-            
-            a.makeid().then(() => {
-                var json = {status: 'ok', name: name, playercode: a.code, admin: isadmin};
-                resolve(json)
-            });
+            resolve({ status: 'ok', admin: isadmin });
         }
         else {
-            var json = {status: 'Error creating player'};
-            resolve(json);
+            resolve({ status: 'gamestarted' });
         }
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+/** Make id for tikkigame */
+Tikki.prototype.makeid = function() {
+    let tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        var text = "";
+        var possible = "0123456789";
+    
+        for (var i = 0; i < 4; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+
+        tikki.code = text;
+        resolve();
     }).catch((err) => {
         console.log(err);
     });
@@ -62,18 +65,17 @@ Tikki.prototype.addPlayer = function(req) {
 
 /** Get players in lobby */
 Tikki.prototype.getLobby = function() {
-
-    var tikki = this;
+    let tikki = this;
 
     return new Promise(function(resolve, reject) {
 
-        var gameready = 'false';
+        let gameready = 'false';
         if(tikki.gameready) {
             gameready = 'true';
         }
 
         tikki.listPlayers().then((players) =>  {
-            var json = { players: players, gameready: gameready };
+            let json = { players: players, gameready: gameready };
             resolve(json);
         });
 
@@ -84,12 +86,11 @@ Tikki.prototype.getLobby = function() {
 
 /** Lists players */
 Tikki.prototype.listPlayers = function() {
-
-    var tikki = this;
+    let tikki = this;
 
     return new Promise(function(resolve, reject) {
-        var players = "";
-        for(var i = 0; i < tikki.players.length; i++) {
+        let players = "";
+        for(let i = 0; i < tikki.players.length; i++) {
             players = players + tikki.players[i].name + "/";
         }
         resolve(players);
@@ -100,10 +101,8 @@ Tikki.prototype.listPlayers = function() {
 
 /** Get game status */
 Tikki.prototype.getGame = function(req) {
+    let tikki = this;
 
-    var tikki = this;
-
-    tikki.startNoConnectionTimer();
     return new Promise(function(resolve, reject) {
         tikki.gameShouldEnd().then((end) => {
             if(!end) {
@@ -142,9 +141,8 @@ Tikki.prototype.getGame = function(req) {
 
 /** Make a play */
 Tikki.prototype.play = function(req) {
-
-    var tikki = this;
-    var json = {};
+    let tikki = this;
+    let json = {};
 
     return new Promise(function(resolve, reject) {
         tikki.currentRound.savePlay(req).then((json) => {
@@ -190,31 +188,13 @@ Tikki.prototype.endGameEndTimer = function(tikki) {
     tikki.startNewRound();
 }
 
-/** Functions to set timer for restarting tikki because of no connections */
-Tikki.prototype.startNoConnectionTimer = function() {
-    clearTimeout(this.connectionTimer);
-    this.connectionTimer = setTimeout(this.noConnections, 60000, this);
-}
-Tikki.prototype.noConnections = function(tikki) {
-    console.log("Tikki restored");
-    tikki.players = [];
-    tikki.gameready = false;
-    tikki.roundJustEnded = false;
-    tikki.adminplayer = undefined;
-    tikki.currentRound = undefined;
-}
-
 /** Start game. Check admin, start round, select starting player, mark that game is ready */
 Tikki.prototype.startGame = function(req) {
-    var tikki = this;
-
-    var playername = req.playername;
-    var playercode = req.playercode;
+    let tikki = this;
 
     return new Promise(function(resolve, reject) {
-
         if(tikki.players.length > 1) {
-            if(tikki.checkAdmin(playername, playercode)) {
+            if(tikki.checkAdmin(req.playername, req.playercode)) {
                 tikki.startRound().then((ok) => {
                     if(ok === 'ok') {
                         tikki.gameready = true;
@@ -235,7 +215,7 @@ Tikki.prototype.startGame = function(req) {
 }
 
 Tikki.prototype.startNewRound = function() {
-    var tikki = this;
+    let tikki = this;
 
     return new Promise(function(resolve, reject) {
         if(tikki.currentRound.roundOver) {
@@ -254,10 +234,9 @@ Tikki.prototype.startNewRound = function() {
 
 /** Set next startingplayer */
 Tikki.prototype.setNextStarter = function() {
-    var tikki = this;
+    let tikki = this;
     
     return new Promise(function(resolve, reject) {
-
         tikki.currentRound.getStarterPlayer().then((player) => {
             player.starter = false;
             
@@ -279,10 +258,10 @@ Tikki.prototype.setNextStarter = function() {
 
 /** Select random player to start game */
 Tikki.prototype.getRandomPlayer = function() {
-    var tikki = this;
+    let tikki = this;
     
     return new Promise(function(resolve, reject) {
-        var random = Math.floor((Math.random() * tikki.players.length));
+        let random = Math.floor((Math.random() * tikki.players.length));
         tikki.players[random].starter = true;
         resolve(tikki.players[random]);
     }).catch((err) => {
@@ -300,8 +279,7 @@ Tikki.prototype.checkAdmin = function(playername, playercode) {
 
 /** Start round */
 Tikki.prototype.startRound = function() {
-
-    var tikki = this;
+    let tikki = this;
     tikki.currentRound = new Round(this.players);
 
     return new Promise(function(resolve, reject) {
@@ -317,12 +295,12 @@ Tikki.prototype.startRound = function() {
 
 /** Return player points as string */
 Tikki.prototype.getPoints = function() {
-    var tikki = this;
+    let tikki = this;
 
     return new Promise(function(resolve, reject) {
-        var points = "";
+        let points = "";
 
-        for(var i = 0; i < tikki.players.length; i++) {
+        for(let i = 0; i < tikki.players.length; i++) {
             points = points + tikki.players[i].name + " - " + tikki.players[i].points + "/";
         }
 
@@ -333,7 +311,7 @@ Tikki.prototype.getPoints = function() {
 }
 
 Tikki.prototype.changeCards = function(req) {
-    var tikki = this;
+    let tikki = this;
 
     return new Promise(function(resolve, reject) {
         tikki.currentRound.changeCards(req).then((status) => {
@@ -345,10 +323,10 @@ Tikki.prototype.changeCards = function(req) {
 }
 
 Tikki.prototype.gameShouldEnd = function() {
-    var tikki = this;
+    let tikki = this;
 
     return new Promise(function(resolve, reject) {
-        for(var i = 0; i < tikki.players.length; i++) {
+        for(let i = 0; i < tikki.players.length; i++) {
             if(tikki.players[i].points >= 20) {
                 resolve(true);
             }

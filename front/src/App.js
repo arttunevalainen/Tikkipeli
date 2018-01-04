@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Login from './Login';
 import Lobby from './Lobby';
 import Game from './Game';
+import Lobbies from './Lobbies';
 
 
 
@@ -14,20 +15,27 @@ class App extends Component {
         this.getLoginData = this.getLoginData.bind(this);
         this.getLobbyData = this.getLobbyData.bind(this);
         this.gameNotReady = this.gameNotReady.bind(this);
+        this.goToLobby = this.goToLobby.bind(this);
     }
 
     getLoginData(data) {
         if(data.status === "ok") {
-            this.setState({playername: data.name, playercode: data.playercode, admin: data.admin, component: "Lobby"});
+            this.setState({playername: data.name, playercode: data.playercode, lobbycode: '', component: "Lobbies"});
+        }
+    }
+
+    goToLobby(data) {
+        if(data.status === "ok") {
+            this.setState({ admin: data.admin, lobbycode: data.lobbycode, component: "Lobby"});
         }
     }
 
     getLobbyData() {
-        this.setState({component: "Game"});
+        this.setState({ component: "Game" });
     }
 
     gameNotReady() {
-        this.setState({component: "Login"});
+        this.setState({ lobbycode: '', component: "Lobbies" });
     }
 
 	render() {
@@ -37,12 +45,20 @@ class App extends Component {
                 <Login sendData={this.getLoginData}/>
             );
         }
+        else if(this.state.component === "Lobbies") {
+            return (
+                <Lobbies playername={this.state.playername}
+                         playercode={this.state.playercode}
+                         sendData={this.goToLobby}/>
+            );
+        }
         else if(this.state.component === "Lobby") {
             if(!this.state.gamestarted) {
                 return (
                     <Lobby playername={this.state.playername}
                            playercode={this.state.playercode}
                            admin={this.state.admin}
+                           lobbycode={this.state.lobbycode}
                            sendData={this.getLobbyData}/>
                 );
             }
@@ -54,6 +70,7 @@ class App extends Component {
             return (
                 <Game playername={this.state.playername}
                       playercode={this.state.playercode}
+                      lobbycode={this.state.lobbycode}
                       sendData={this.gameNotReady}/>
             );
         }

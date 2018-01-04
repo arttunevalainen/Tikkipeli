@@ -72,20 +72,6 @@ class Hand {
         });
     }
 
-    /*deletecards(cards) {
-        var hand = this;
-
-        return new Promise(function(resolve) {
-
-            for(var i = 0; i < cards.length; i++) {
-
-            }
-            resolve({status: 'ok'});
-        }).catch((err) => {
-            console.log(err);
-        });
-    }*/
-
     cardPlayed(card) {
         var hand = this;
 
@@ -159,15 +145,29 @@ class Hand {
         });
     }
 
-    stringHand() {
+    stringifyHand() {
         var hand = this.hand;
         
         return new Promise(function(resolve, reject) {
-            var stringhand = ""
+            var string = ""
             for (var i = 0; i < hand.length; i++) {
-                stringhand = stringhand + hand[i].toString() + "/";
+                string = string + hand[i].toString() + "/";
             }
-            resolve(stringhand);
+            resolve(string);
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    stringifyPlayedCards() {
+        var hand = this;
+        
+        return new Promise(function(resolve, reject) {
+            var string = ""
+            for (var i = 0; i < hand.playedCards.length; i++) {
+                string = string + hand.playedCards[i].toString() + "/";
+            }
+            resolve(string);
         }).catch((err) => {
             console.log(err);
         });
