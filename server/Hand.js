@@ -27,7 +27,8 @@ class Hand {
     }
 
     setPoker() {
-        var h = this;
+        let h = this;
+
         return new Promise(function(resolve) {
             h.copyHandForPoker().then((copy) => {
                 pokerHandCalc(copy).then((poker) => {
@@ -41,12 +42,12 @@ class Hand {
     }
 
     copyHandForPoker() {
-        var h = this;
+        let h = this;
 
         return new Promise(function(resolve) {
-            var copy = [];
-            for(var i = 0; i < h.hand.length; i++) {
-                var c = new Card(h.hand[i].getSuit(), h.hand[i].getNumber());
+            let copy = [];
+            for(let i = 0; i < h.hand.length; i++) {
+                let c = new Card(h.hand[i].getSuit(), h.hand[i].getNumber());
                 copy.push(c);
             }
 
@@ -73,15 +74,14 @@ class Hand {
     }
 
     cardPlayed(card) {
-        var hand = this;
+        let hand = this;
 
         return new Promise(function(resolve, reject) {
-
-            var json = {};
+            let json = {};
 
             hand.objectifyCard(card).then((card) => {
                 hand.searchforcard(card).then((index) => {
-                    var a = hand.hand.splice(index, 1);
+                    let a = hand.hand.splice(index, 1);
                     hand.playedCards.push(a[0]);
                     json.status = 'ok';
                     resolve(json);
@@ -94,10 +94,10 @@ class Hand {
 
     /** Returns index of card in this hand */
     searchforcard(card) {
-        var hand = this;
+        let hand = this;
 
         return new Promise(function(resolve, reject) {
-            for (var i = 0; i < hand.hand.length; i++) {
+            for (let i = 0; i < hand.hand.length; i++) {
                 if(hand.hand[i].isSameCard(card)) {
                     resolve(i);
                 }
@@ -109,10 +109,10 @@ class Hand {
 
     objectifyCard(card) {
         return new Promise(function(resolve, reject) {
-            var suit = "";
-            var number = "";
-            var cardObject;
-            for(var i = 0; i < card.length - 1; i++) {
+            let suit = "";
+            let number = "";
+            let cardObject;
+            for(let i = 0; i < card.length - 1; i++) {
                 suit = suit + card[i];
                 if(suit === 'ruutu' || suit === 'pata' || suit === 'risti' || suit === 'hertta') {
                     number = card[i+1];
@@ -146,11 +146,11 @@ class Hand {
     }
 
     stringifyHand() {
-        var hand = this.hand;
+        let hand = this.hand;
         
         return new Promise(function(resolve, reject) {
-            var string = ""
-            for (var i = 0; i < hand.length; i++) {
+            let string = ""
+            for(let i = 0; i < hand.length; i++) {
                 string = string + hand[i].toString() + "/";
             }
             resolve(string);
@@ -160,11 +160,11 @@ class Hand {
     }
 
     stringifyPlayedCards() {
-        var hand = this;
+        let hand = this;
         
         return new Promise(function(resolve, reject) {
-            var string = ""
-            for (var i = 0; i < hand.playedCards.length; i++) {
+            let string = ""
+            for (let i = 0; i < hand.playedCards.length; i++) {
                 string = string + hand.playedCards[i].toString() + "/";
             }
             resolve(string);

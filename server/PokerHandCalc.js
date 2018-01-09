@@ -2,7 +2,9 @@
 const Card = require('./Card.js');
 
 
-/** Pokerhand calculator. Give array of five (5) Card objects and this will calculate pokerhand for it with highcards ect */
+/** Pokerhand calculator. Give array of five (5) Card objects and this will calculate pokerhand for it with highcards ect 
+ * Needs refactoring!?
+*/
 function pokerHandCalc(hand) {
     return new Promise(function(resolve, reject) {
         sortHand(hand).then(() => {
@@ -241,11 +243,11 @@ function isTwopairs(hand) {
 
 function isPairs(hand) {
     return new Promise(function(resolve, reject) {
-        var number = hand[0].getNumber();
-        for(var i = 1; i < hand.length; i++) {
+        let number = hand[0].getNumber();
+        for(let i = 1; i < hand.length; i++) {
             if(hand[i].getNumber() === number) {
-                var other = [];
-                for(var j = 0; j < hand.length; j++) {
+                let other = [];
+                for(let j = 0; j < hand.length; j++) {
                     if(hand[j].getNumber() !== number) {
                         other.push(hand[j].getNumber());
                     }
@@ -273,10 +275,10 @@ function getHighest(hand) {
 
 function sortHand(hand) {
     return new Promise(function(resolve) {
-        for(var i = 0; i < hand.length-1; i++) {
-            for(var j = i+1; j < hand.length; j++) {
+        for(let i = 0; i < hand.length-1; i++) {
+            for(let j = i+1; j < hand.length; j++) {
                 if(hand[i].getNumber() > hand[j].getNumber()) {
-                    var c = hand[i];
+                    let c = hand[i];
                     hand[i] = hand[j];
                     hand[j] = c;
                 }

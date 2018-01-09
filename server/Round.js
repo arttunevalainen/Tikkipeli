@@ -213,12 +213,12 @@ class Round {
 
     /** Play by tikki rules */
     checkRules(card, player) {
-        var round = this;
+        let round = this;
 
         return new Promise(function(resolve) {
 
-            var a = new Card('', '');
-            var b = new Card('', '');
+            let a = new Card('', '');
+            let b = new Card('', '');
 
             a.objectifyCard(card).then(() => {
                 if(round.startingplayer.name === player.name) {
@@ -259,7 +259,7 @@ class Round {
 
     /** Compare cards and change startingplayer if needed */
     compareCards(player, a, b) {
-        var round = this;
+        let round = this;
 
         return new Promise(function(resolve) {
             if(a.number > b.number) {
@@ -275,8 +275,7 @@ class Round {
     playerHasPlayableCards(player, suit) {
 
         return new Promise(function(resolve) {
-
-            for(var i = 0; i < player.hand.hand.length; i++) {
+            for(let i = 0; i < player.hand.hand.length; i++) {
                 if(player.hand.hand[i].suit === suit) {
                     resolve(true);
                 }
@@ -291,11 +290,10 @@ class Round {
 
     /** Find startingplayer latest play */
     searchStarterPlayerPlay() {
-        var round = this;
+        let round = this;
 
         return new Promise(function(resolve) {
-
-            for(var i = 0; i < round.plays.length; i++) {
+            for(let i = 0; i < round.plays.length; i++) {
                 if(round.plays[i].player === round.startingplayer.name) {
                     resolve(round.plays[i]);
                 }
@@ -308,18 +306,18 @@ class Round {
 
     /** Count points after last play is made */
     countPoints() {
-        var round = this;
+        let round = this;
 
         return new Promise(function(resolve) {
             round.getPlayerIndex(round.startingplayer.name).then((index) => {
                 round.players[index].points = round.players[index].points + 3;
-                var tikkiwinner = round.players[index].name;
+                let tikkiwinner = round.players[index].name;
 
                 round.endingWithTwo().then((twoend) => {
                     round.checkHands().then((status) => {
-                        var winnerIndex = status.winner;
-                        var cards = round.players[winnerIndex].hand.stringifyPlayedCards();
-                        var pokerwinner = round.players[winnerIndex].name;
+                        let winnerIndex = status.winner;
+                        let cards = round.players[winnerIndex].hand.stringifyPlayedCards();
+                        let pokerwinner = round.players[winnerIndex].name;
 
                         resolve({ status: 'ok',
                                   tikkiwinner: tikkiwinner,
@@ -337,14 +335,14 @@ class Round {
 
     /** Get best pokerhand */
     checkHands() {
-        var round = this;
+        let round = this;
 
         return new Promise(function(resolve) {
-            var besthand = {comparable: 0};
-            var ownerofbesthand = 0;
+            let besthand = {comparable: 0};
+            let ownerofbesthand = 0;
 
-            for(var i = 0; i < round.players.length; i++) {
-                var playerhand = round.players[i].hand;
+            for(let i = 0; i < round.players.length; i++) {
+                let playerhand = round.players[i].hand;
                 if(playerhand.poker.comparable > besthand.comparable) {
                     besthand = playerhand.poker;
                     ownerofbesthand = i;
@@ -354,24 +352,30 @@ class Round {
                         besthand = playerhand.poker;
                         ownerofbesthand = i;
                     }
-                    else if(playerhand.poker.hand === "TwoPairs") {
-                        if(playerhand.poker.handlow > besthand.handlow) {
-                            besthand = playerhand.poker;
-                            ownerofbesthand = i;
+                    else if(playerhand.poker.handhigh === besthand.handhigh) {
+                        if(playerhand.poker.hand === "TwoPairs") {
+                            if(playerhand.poker.handlow > besthand.handlow) {
+                                besthand = playerhand.poker;
+                                ownerofbesthand = i;
+                            }
+                            /** Both pairs same? */
+                            //else if() {
+
+                            //}
                         }
-                    }
-                    else if(playerhand.poker.hand === "Pair") {
-                        if(playerhand.poker.high > besthand.high) {
-                            besthand = playerhand.poker;
-                            ownerofbesthand = i;
-                        }
-                        else if(playerhand.poker.mid > besthand.mid) {
-                            besthand = playerhand.poker;
-                            ownerofbesthand = i;
-                        }
-                        else if(playerhand.poker.low > besthand.low) {
-                            besthand = playerhand.poker;
-                            ownerofbesthand = i;
+                        else if(playerhand.poker.hand === "Pair") {
+                            if(playerhand.poker.high > besthand.high) {
+                                besthand = playerhand.poker;
+                                ownerofbesthand = i;
+                            }
+                            else if(playerhand.poker.mid > besthand.mid) {
+                                besthand = playerhand.poker;
+                                ownerofbesthand = i;
+                            }
+                            else if(playerhand.poker.low > besthand.low) {
+                                besthand = playerhand.poker;
+                                ownerofbesthand = i;
+                            }
                         }
                     }
                 }
@@ -387,7 +391,7 @@ class Round {
              * KAKSIPARIA 2p
              * PARI 1p
              */
-            var owner = round.players[ownerofbesthand];
+            let owner = round.players[ownerofbesthand];
             if(besthand.hand === "StraightFlush") {
                 owner.points = owner.points + 10;
             }
@@ -421,12 +425,12 @@ class Round {
 
     /** End round with 2 - rule */
     endingWithTwo() {
-        var round = this;
+        let round = this;
 
         return new Promise(function(resolve) {
             round.getPlayerIndex(round.startingplayer.name).then((index) => {
                 if(round.players[index].hand.playedCards[0].getNumber() === 2) {
-                    for(var i = 0; i < round.players.length; i++) {
+                    for(let i = 0; i < round.players.length; i++) {
                         if(i !== index) {
                             round.players[i].points = round.players[i].points - 3;
                         }
