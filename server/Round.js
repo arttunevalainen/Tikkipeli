@@ -30,7 +30,7 @@ class Round {
 
         round.plays = [];
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             round.getStarterPlayer().then((player) => {
                 round.startingplayer = player;
                 round.currentplayer = round.startingplayer;
@@ -56,7 +56,7 @@ class Round {
     newChangeRound() {
         var round = this;
         
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.players.length; i++) {
                 round.players[i].changedCards = false;
             }
@@ -72,7 +72,7 @@ class Round {
         var round = this;
         var json = {};
     
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             round.getHand(req.playername, req.playercode).then((hand) => {
                 json.hand = hand;
                 round.listPlayers().then((players) =>  {
@@ -116,7 +116,7 @@ class Round {
         var allEmpty = true;
         var round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.players.length; i++) {
                 if(!round.players[i].hand.isEmpty()) {
                     allEmpty = false;
@@ -136,7 +136,7 @@ class Round {
         var recentPlays = "";
         var round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.plays.length; i++) {
                 //if(round.plays[i].player !== playername) {
                     recentPlays = recentPlays + round.plays[i].player + " " + round.plays[i].card + "/";
@@ -155,7 +155,7 @@ class Round {
     savePlay(req) {
         var round =  this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             round.getPlayerObject(req.playername, req.playercode).then((player) => {
                 if(player !== "error") {
                     round.iscurrentplayer(req).then((iscurrent) => {
@@ -205,7 +205,7 @@ class Round {
                 else {
                     resolve({ status: "error" });
                 }
-            })
+            });
         }).catch((err) => {
             console.log(err);
         });
@@ -215,8 +215,7 @@ class Round {
     checkRules(card, player) {
         let round = this;
 
-        return new Promise(function(resolve) {
-
+        return new Promise(function(resolve, reject) {
             let a = new Card('', '');
             let b = new Card('', '');
 
@@ -261,7 +260,7 @@ class Round {
     compareCards(player, a, b) {
         let round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             if(a.number > b.number) {
                 round.startingplayer = player;
             }
@@ -274,7 +273,7 @@ class Round {
     /** Return true if player has playable cards left in hand */
     playerHasPlayableCards(player, suit) {
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(let i = 0; i < player.hand.hand.length; i++) {
                 if(player.hand.hand[i].suit === suit) {
                     resolve(true);
@@ -292,7 +291,7 @@ class Round {
     searchStarterPlayerPlay() {
         let round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(let i = 0; i < round.plays.length; i++) {
                 if(round.plays[i].player === round.startingplayer.name) {
                     resolve(round.plays[i]);
@@ -308,7 +307,7 @@ class Round {
     countPoints() {
         let round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             round.getPlayerIndex(round.startingplayer.name).then((index) => {
                 round.players[index].points = round.players[index].points + 3;
                 let tikkiwinner = round.players[index].name;
@@ -337,7 +336,7 @@ class Round {
     checkHands() {
         let round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             let besthand = {comparable: 0};
             let ownerofbesthand = 0;
 
@@ -427,7 +426,7 @@ class Round {
     endingWithTwo() {
         let round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             round.getPlayerIndex(round.startingplayer.name).then((index) => {
                 if(round.players[index].hand.playedCards[0].getNumber() === 2) {
                     for(let i = 0; i < round.players.length; i++) {
@@ -451,7 +450,7 @@ class Round {
     iscurrentplayer(req) {
         var round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             if(round.currentplayer.name === req.playername && round.currentplayer.code === req.playercode) {
                 resolve(true);
             }
@@ -467,7 +466,7 @@ class Round {
     nextPlayerToPlay() {
         var round =  this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
 
             if(round.plays.length % round.players.length !== 0) {
                 if(round.plays[0].player === round.currentplayer.name) {
@@ -496,7 +495,7 @@ class Round {
     getPlayerIndex(playername) {
         var round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for (var i = 0; i < round.players.length; i++) {
                 if(round.players[i].name === playername) {
                     resolve(i);
@@ -512,7 +511,7 @@ class Round {
     getPlayerObject(name, code) {
         var round =  this;
         
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.players.length; i++) {
                 if(round.players[i].name === name && round.players[i].code === code) {
                     resolve(round.players[i]);
@@ -528,7 +527,7 @@ class Round {
     listPlayers() {
         var round = this;
     
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             var players = "";
             for(var i = 0; i < round.players.length; i++) {
                 players = players + round.players[i].name + "/";
@@ -543,7 +542,7 @@ class Round {
     getHand(name, playercode) {
         var round = this;
         
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.players.length; i++) {
                 if(round.players[i].name === name && round.players[i].code === playercode) {
                     resolve(round.players[i].hand.stringifyHand());
@@ -558,7 +557,7 @@ class Round {
     getStarterPlayer() {
         var round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.players.length; i++) {
                 if(round.players[i].starter) {
                     resolve(round.players[i]);
@@ -573,7 +572,7 @@ class Round {
     handsforplayers(hands) {
         var round = this;
         
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.players.length; i++) {
                 round.players[i].hand = hands[i];
             }
@@ -587,7 +586,7 @@ class Round {
     drawHands(hands) {
         var round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(var k = 0; k < hands.length; k++) {
                 for(var m = 0; m < 5; m++) {
                     hands[k].addtoHand(round.deck.draw());
@@ -603,7 +602,7 @@ class Round {
     initiateHands() {
         var round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             var hands = [];
             for(var j = 0; j < round.players.length; j++) {
                 hands.push(new Hand());
@@ -621,7 +620,7 @@ class Round {
         var playername = req.playername;
         var playercode = req.playercode;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             round.getPlayerObject(playername, playercode).then((player) => {
                 if(!player.changedCards) {
                     var stringcards = req.cards;
@@ -686,7 +685,7 @@ class Round {
     allPlayersChanged() {
         var round = this;
 
-        return new Promise(function(resolve) {
+        return new Promise(function(resolve, reject) {
             for(var i = 0; i < round.players.length; i++) {
                 if(!round.players[i].changedCards) {
                     resolve(false);
@@ -702,7 +701,7 @@ class Round {
     playerHasChanged(playername, playercode) {
         var round = this;
 
-        return new Promise(function(resolve)  {
+        return new Promise(function(resolve, reject) {
             round.getPlayerObject(playername, playercode).then((player) => {
                 if(player.changedCards) {
                     resolve(true);

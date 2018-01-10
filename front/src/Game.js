@@ -40,7 +40,7 @@ class Game extends Component {
     }
 
     updateGame() {
-        var game = this;
+        let game = this;
 
         if(this.state.currentplayer !== this.props.playername) {
             getGame(this.props.playername, this.props.playercode, game.props.lobbycode).then((data) => {
@@ -80,15 +80,15 @@ class Game extends Component {
 
     cardClick(event) {
 
-        var game = this;
-        var cards = this.getCards();
+        let game = this;
+        let cards = this.getCards();
 
         if(this.state.changephase) {
             if(!game.cardstochange.includes(cards[parseInt(event.target.alt, 10)])) {
                 game.cardstochange.push(cards[parseInt(event.target.alt, 10)]);
             }
             else {
-                for(var i = 0; i < game.cardstochange.length; i++) {
+                for(let i = 0; i < game.cardstochange.length; i++) {
                     if(game.cardstochange[i] === cards[parseInt(event.target.alt, 10)]) {
                         game.cardstochange.splice(i, 1);
                     }
@@ -112,7 +112,7 @@ class Game extends Component {
     }
 
     getCards() {
-        var cards = this.state.hand;
+        let cards = this.state.hand;
         if(cards !== '') {
             if(cards !== undefined) {
                 cards = cards.split("/");
@@ -128,13 +128,13 @@ class Game extends Component {
         if(this.state.hand !== '') {
             if(this.state.hand !== undefined) {
 
-                var cards = this.getCards();
+                let cards = this.getCards();
 
-                var five = (cards[4]);
-                var four = (cards[3]);
-                var three = (cards[2]);
-                var two = (cards[1]);
-                var one = (cards[0]);
+                let five = (cards[4]);
+                let four = (cards[3]);
+                let three = (cards[2]);
+                let two = (cards[1]);
+                let one = (cards[0]);
 
                 return (
                     <div id="playingcards">
@@ -156,7 +156,7 @@ class Game extends Component {
     }
 
     getListofPlays() {
-        var list = []; 
+        let list = []; 
 
         if(this.state.plays) {
             list = this.state.plays.split("/");
@@ -168,7 +168,7 @@ class Game extends Component {
 
     renderPlays() {
 
-        var listItems = this.getListofPlays();
+        let listItems = this.getListofPlays();
 
         const list = listItems.map((name) =>
             <ListGroupItem id="playlistitem" key={name.toString()}>
@@ -180,7 +180,7 @@ class Game extends Component {
     }
 
     getListofPoints() {
-        var list = []; 
+        let list = []; 
         
         if(this.state.points) {
             list = this.state.points.split("/");
@@ -191,7 +191,7 @@ class Game extends Component {
     }
 
     renderPoints() {
-        var listItems = this.getListofPoints();
+        let listItems = this.getListofPoints();
         
         const list = listItems.map((name) =>
             <ListGroupItem id="pointslistitem" key={name.toString()}>
@@ -203,8 +203,7 @@ class Game extends Component {
     }
 
     changeSelectedCards() {
-
-        var game = this;
+        let game = this;
 
         game.stringifyCardArray(game.cardstochange).then((cardstring) => {
             changeCards(game.props.playername, game.props.playercode, game.props.lobbycode, cardstring).then((data) => {
@@ -221,8 +220,8 @@ class Game extends Component {
 
     stringifyCardArray(cardarray) {
         return new Promise(function(resolve, reject) {
-            var cards = "";
-            for(var i = 0; i < cardarray.length; i++) {
+            let cards = "";
+            for(let i = 0; i < cardarray.length; i++) {
                 cards = cards + cardarray[i] + "/";
             }
 
@@ -234,7 +233,7 @@ class Game extends Component {
 
     render() {
 
-        var turn = this.state.currentplayer === this.props.playername;
+        let turn = this.state.currentplayer === this.props.playername;
 
         return (
             <div id="gameobjects">

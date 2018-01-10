@@ -63,6 +63,17 @@ Tikki.prototype.makeid = function() {
     });
 }
 
+Tikki.prototype.leaveLobby = function() {
+    let tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        
+        
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
 /** Get players in lobby */
 Tikki.prototype.getLobby = function() {
     let tikki = this;

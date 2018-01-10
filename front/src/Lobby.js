@@ -84,6 +84,10 @@ class Lobby extends Component {
         });
     }
 
+    backClicked() {
+        console.log("kek");
+    }
+
     render() {
         let admin = (this.props.admin === "true");
 
@@ -94,7 +98,11 @@ class Lobby extends Component {
                 {admin &&
                     <Button type="button" color="success" id="readybutton" onClick={this.readyClicked}>Pelaamaan</Button>
                 }
+                <Button type="button" color="danger" id="readybutton" onClick={this.backClicked}>Takasin</Button>
                 {admin && <div id="admininfo"><h6>Olet aulan admin. Kun painat "pelaamaan", koko aula siirtyy peliin.</h6></div>}
+                <div>
+                    
+                </div>
             </div>
         );
     }
