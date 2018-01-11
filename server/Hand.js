@@ -10,7 +10,6 @@ class Hand {
         this.played = [];
 
         this.playedCards = [];
-
         this.poker = '';
     }
 

@@ -353,14 +353,20 @@ class Round {
                     }
                     else if(playerhand.poker.handhigh === besthand.handhigh) {
                         if(playerhand.poker.hand === "TwoPairs") {
+                            console.log(playerhand.playedCards);
                             if(playerhand.poker.handlow > besthand.handlow) {
                                 besthand = playerhand.poker;
                                 ownerofbesthand = i;
                             }
-                            /** Both pairs same? */
-                            //else if() {
-
-                            //}
+                            else if(playerhand.poker.handlow === besthand.handlow) {
+                                if(playerhand.poker.high > besthand.high) {
+                                    besthand = playerhand.poker;
+                                    ownerofbesthand = i;
+                                }
+                                else if(playerhand.poker.high === besthand.high) {
+                                    //Same twopairs and same highcard
+                                }
+                            }
                         }
                         else if(playerhand.poker.hand === "Pair") {
                             if(playerhand.poker.high > besthand.high) {
@@ -374,6 +380,9 @@ class Round {
                             else if(playerhand.poker.low > besthand.low) {
                                 besthand = playerhand.poker;
                                 ownerofbesthand = i;
+                            }
+                            else if(playerhand.poker.low === besthand.low) {
+                                //Same hand with same pair
                             }
                         }
                     }

@@ -65,10 +65,11 @@ function pokerHandCalc(hand) {
                                                                     json.comparable = 2;
                                                                     json.handhigh = twopairs.handhigh;
                                                                     json.handlow = twopairs.handlow;
+                                                                    json.high = twopairs.high;
                                                                     resolve(json);
                                                                 }
                                                                 else {
-                                                                    isPairs(hand).then((pairs) => {
+                                                                    isPair(hand).then((pairs) => {
                                                                         if(pairs.status) {
                                                                             json.hand = "Pair";
                                                                             json.comparable = 1;
@@ -213,10 +214,12 @@ function isTrips(hand) {
 
 function isTwopairs(hand) {
     return new Promise(function(resolve, reject) {
-        var number = hand[0].getNumber();
-        var stopped = 0;
-        var low = 0;
-        for(var i = 1; i < hand.length; i++) {
+        let number = hand[0].getNumber();
+        let stopped = 0;
+        let low = 0;
+        let highcard;
+
+        for(let i = 1; i < hand.length; i++) {
             if(hand[i].getNumber() === number) {
                 number = hand[i].getNumber();
                 stopped = i+1;
@@ -224,14 +227,20 @@ function isTwopairs(hand) {
                 low = number;
             }
             else {
+                highcard = hand[i-1].getNumber();
                 number = hand[i].getNumber();
             }
         }
-        for(var j = stopped; j < hand.length; j++) {
+        for(let j = stopped; j < hand.length; j++) {
             if(hand[j].getNumber() === number) {
-                resolve({ status: true, handhigh: number, handlow: low });
+                if(highcard === undefined) {
+                    highcard = hand[5].getNumber();
+                }
+                
+                resolve({ status: true, handhigh: number, handlow: low, high: highcard });
             }
             else {
+                highcard = hand[j-1].getNumber();
                 number = hand[j].getNumber();
             }
         }
@@ -241,7 +250,7 @@ function isTwopairs(hand) {
     });
 }
 
-function isPairs(hand) {
+function isPair(hand) {
     return new Promise(function(resolve, reject) {
         let number = hand[0].getNumber();
         for(let i = 1; i < hand.length; i++) {
