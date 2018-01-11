@@ -63,12 +63,54 @@ Tikki.prototype.makeid = function() {
     });
 }
 
-Tikki.prototype.leaveLobby = function() {
+Tikki.prototype.leaveLobby = function(player) {
     let tikki = this;
 
     return new Promise(function(resolve, reject) {
-        
-        
+        if(player.name === tikki.adminplayer.name && player.code === tikki.adminplayer.code) {
+            tikki.getPlayerIndex(player.name, player.code).then((index) => {
+                if(index !== "error") {
+                    if(index+1 === tikki.players.length) {
+                        tikki.adminplayer = tikki.players[0];
+                    }
+                    else {
+                        tikki.adminplayer = tikki.players[index+1];
+                    }
+                    tikki.players.splice(index, 1);
+                    resolve({ status: 'deleted' });
+                }
+                else {
+                    resolve("error");
+                }
+            });
+        }
+        else {
+            tikki.getPlayerIndex(player.name, player.code).then((index) => {
+                if(index !== "error") {
+                    tikki.players.splice(index, 1);
+                    resolve({ status: 'deleted' });
+                }
+                else {
+                    resolve("error");
+                }
+            });
+        }
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+/** Returns player object from players[] */
+Tikki.prototype.getPlayerIndex = function(name) {
+    let tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        for (let i = 0; i < tikki.players.length; i++) {
+            if(tikki.players[i].name === name) {
+                resolve(i);
+            }
+        }
+        resolve("error");
     }).catch((err) => {
         console.log(err);
     });
@@ -79,14 +121,15 @@ Tikki.prototype.getLobby = function() {
     let tikki = this;
 
     return new Promise(function(resolve, reject) {
-
         let gameready = 'false';
         if(tikki.gameready) {
             gameready = 'true';
         }
 
+        let adminname = tikki.adminplayer.name;
+
         tikki.listPlayers().then((players) =>  {
-            let json = { players: players, gameready: gameready };
+            let json = { players: players, isadmin: adminname, gameready: gameready };
             resolve(json);
         });
 

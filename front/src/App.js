@@ -14,8 +14,8 @@ class App extends Component {
 
         this.getLoginData = this.getLoginData.bind(this);
         this.getLobbyData = this.getLobbyData.bind(this);
-        this.gameNotReady = this.gameNotReady.bind(this);
         this.goToLobby = this.goToLobby.bind(this);
+        this.backToLobby = this.backToLobby.bind(this);
     }
 
     getLoginData(data) {
@@ -34,7 +34,7 @@ class App extends Component {
         this.setState({ component: "Game" });
     }
 
-    gameNotReady() {
+    backToLobby() {
         this.setState({ lobbycode: '', component: "Lobbies" });
     }
 
@@ -59,7 +59,8 @@ class App extends Component {
                            playercode={this.state.playercode}
                            admin={this.state.admin}
                            lobbycode={this.state.lobbycode}
-                           sendData={this.getLobbyData}/>
+                           sendData={this.getLobbyData}
+                           goBack={this.backToLobby}/>
                 );
             }
             else {
@@ -71,7 +72,7 @@ class App extends Component {
                 <Game playername={this.state.playername}
                       playercode={this.state.playercode}
                       lobbycode={this.state.lobbycode}
-                      sendData={this.gameNotReady}/>
+                      sendData={this.backToLobby}/>
             );
         }
         else {

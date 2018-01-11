@@ -37,6 +37,24 @@ export function setupGame(name, code, lobbycode) {
     });
 }
 
+export function leaveLobby(name, code, lobbycode) {
+    return new Promise(function(resolve) {
+        axios.post(address + 'leaveLobby', {
+                playername: name,
+                playercode: code,
+                lobbycode: lobbycode
+            })
+            .then(function (response) {
+                resolve(response.data);
+            })
+            .catch(function (error) {
+                console.log(error)
+            });
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
 export function newPlayer(name) {
     return new Promise(function(resolve) {
         axios.post(address + 'addplayer', {

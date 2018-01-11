@@ -39,6 +39,30 @@ Lobbies.prototype.newPlayer = function(req) {
     });
 }
 
+Lobbies.prototype.deletePlayerFromLobby = function(req) {
+    let lobbies = this;
+
+    return new Promise(function(resolve) {
+        lobbies.findLobby(req.lobbycode).then((lobby) => {
+            lobbies.getPlayerObject(req.playername, req.playercode).then((player) => {
+                lobby.leaveLobby(player).then((json) => {
+                    if(lobby.players.length === 0) {
+                        lobbies.getLobbyIndex(req.lobbycode).then((lobbyindex) => {
+                            lobbies.lobbies.splice(lobbyindex, 1);
+                            resolve(json);
+                        });
+                    }
+                    else {
+                        resolve(json);
+                    }
+                });
+            });
+        });
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
 Lobbies.prototype.createNewLobby = function(req) {
     let lobbies = this;
 
@@ -206,6 +230,21 @@ Lobbies.prototype.findLobby = function(lobbycode) {
         for(let i = 0; i < lobbies.lobbies.length; i++) {
             if(lobbies.lobbies[i].code === lobbycode) {
                 resolve(lobbies.lobbies[i]);
+            }
+        }
+        resolve();
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Lobbies.prototype.getLobbyIndex = function(lobbycode) {
+    let lobbies = this;
+
+    return new Promise(function(resolve) {
+        for(let i = 0; i < lobbies.lobbies.length; i++) {
+            if(lobbies.lobbies[i].code === lobbycode) {
+                resolve(i);
             }
         }
         resolve();
