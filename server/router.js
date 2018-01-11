@@ -23,6 +23,12 @@ router.get('/getLobbies', function(req, res) {
     });
 });
 
+router.post('/leaveLobby', function(req, res) {
+    lobbies.deletePlayerFromLobby(req.body).then((json) => {
+        res.json({ status: json.status });
+    });
+});
+
 router.post('/createLobby', function(req, res) {
     lobbies.createNewLobby(req.body).then((json) => {
         res.json({ status: json.status, admin: json.admin, lobbycode: json.lobbycode });
@@ -37,7 +43,7 @@ router.post('/joinLobby', function(req, res) {
 
 router.post('/getlobby', function(req, res) {
     lobbies.getLobby(req.body).then((json) => {
-        res.json({ status: json.status, players: json.players, gameready: json.gameready });
+        res.json({ status: json.status, admin: json.isadmin, players: json.players, gameready: json.gameready });
     });
 });
 
