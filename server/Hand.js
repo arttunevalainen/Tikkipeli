@@ -57,7 +57,7 @@ class Hand {
     }
 
     deleteCard(card) {
-        var hand = this;
+        let hand = this;
 
         return new Promise(function(resolve) {
 

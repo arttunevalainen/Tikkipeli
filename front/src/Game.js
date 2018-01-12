@@ -66,10 +66,16 @@ class Game extends Component {
                     });
                 }
                 else if(data.status === 'round ended') {
+                    console.log(data);
                     game.setState({ players: data.players,
                                     hand: data.hand,
                                     plays: data.plays,
                                     points: data.points });
+                }
+                else if(data.status === 'Game has ended') {
+                    game.setState({ points: data.points,
+                                    hand: '',
+                                    plays: '' });
                 }
                 else if(data.status === 'notready') {
                     game.props.sendData();
@@ -170,11 +176,13 @@ class Game extends Component {
 
         let listItems = this.getListofPlays();
 
-        const list = listItems.map((name) =>
-            <ListGroupItem id="playlistitem" key={name.toString()}>
-                {name}
-            </ListGroupItem>
-        );
+        const list = listItems.map((play) => {
+            let splitplay = play.split(" - ");
+            console.log(splitplay);
+            return (    <ListGroupItem id="playlistitem" key={play.toString()}>
+                            {play} <img id="playingcard" src={require('./cards/' + splitplay[1] + '.png')} alt={splitplay[1]}/>
+                        </ListGroupItem> );
+        });
 
         return <ListGroup id="playlist">{list}</ListGroup>
     }

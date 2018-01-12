@@ -55,25 +55,20 @@ router.post('/setup', function(req, res) {
 
 router.post('/getGame', function(req, res) {
     lobbies.getGame(req.body).then((json) => {
-        res.json({  status: json.status, 
-                    currentplayer: json.currentplayer, 
-                    hand: json.hand, 
-                    players: json.players, 
-                    plays: json.plays, 
-                    points: json.points, 
-                    changestatus: json.changestatus });
+        res.json({  status: json.status,
+                    currentplayer: json.currentplayer,
+                    hand: json.hand,
+                    players: json.players,
+                    plays: json.plays,
+                    points: json.points,
+                    changestatus: json.changestatus,
+                    stats: json.stats });
     });
 });
 
 router.post('/sendPlay', function(req, res) {
     lobbies.play(req.body).then((json) => {
-        res.json({  status: json.status, 
-                    points: json.points,
-                    tikkiwinner: json.tikkiwinner,
-                    twoend: json.twoend,
-                    pokerwinner: json.pokerwinner,
-                    winninghand: json.winninghand,
-                    winningcards: json.winningcards });
+        res.json({ status: json.status });
     })
 });
 

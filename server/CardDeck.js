@@ -30,10 +30,10 @@ class CardDeck {
     }
 
     shuffle() {
-        var deckClass = this;
+        let deckClass = this;
         return new Promise(function(resolve, reject) {
-            for (var i = 0; i < 1000; i++) {
-                var random = Math.floor((Math.random() * deckClass.deck.length));
+            for (let i = 0; i < 1000; i++) {
+                let random = Math.floor((Math.random() * deckClass.deck.length));
                 deckClass.deck.push(deckClass.drawCard(random));
             }
             resolve();
@@ -47,9 +47,9 @@ class CardDeck {
     }
 
     createDeck() {
-        for(var i = 2; i < 15; i++) {
-            for(var j = 0; j < suits.length; j++) {
-                var card = new Card(suits[j], i);
+        for(let i = 2; i < 15; i++) {
+            for(let j = 0; j < suits.length; j++) {
+                let card = new Card(suits[j], i);
                 this.deck.push(card);
             }
         }
@@ -57,7 +57,7 @@ class CardDeck {
 
     printDeck() {
         return new Promise(function(resolve, reject) {
-            for (var i = 0; i < this.deckSize(); i++) {
+            for(let i = 0; i < this.deckSize(); i++) {
                 console.log(this.deck[i].toString());
             }
             resolve();

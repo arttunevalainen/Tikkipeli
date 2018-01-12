@@ -75,7 +75,7 @@ class Lobbies extends Component {
             let list = listItems.map((lobby) => {
                 let lobbynumber = lobby.split("-");
                 return( <ListGroupItem id="lobbiesitem" key={lobbynumber[0].toString()}>
-                            <div>{lobbynumber[0]}   :   Pelaajia {lobbynumber[1]}<Button color="success" id="lobbyjoinbutton" onClick={(e) => this.lobbyclicked(lobbynumber[0])}>Liity</Button></div>
+                            <div>{lobbynumber[0]}:Pelaajia {lobbynumber[1]}<Button color="success" id="lobbyjoinbutton" onClick={(e) => this.lobbyclicked(lobbynumber[0])}>Liity</Button></div>
                         </ListGroupItem> );
             });
 

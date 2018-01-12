@@ -26,8 +26,8 @@ class Card {
     }
 
     toString() {
-        var card = "";
-        var cardnumber = this.number;
+        let card = "";
+        let cardnumber = this.number;
         if(this.number === 10) {
             cardnumber = 'T';
         }
@@ -49,14 +49,14 @@ class Card {
     }
 
     objectifyCard(card) {
-        var c = this;
+        let c = this;
 
         return new Promise(function(resolve, reject) {
             
-            var suit = "";
-            var number = "";
-            var cardObject;
-            for(var i = 0; i < card.length - 1; i++) {
+            let suit = "";
+            let number = "";
+            let cardObject;
+            for(let i = 0; i < card.length - 1; i++) {
                 suit = suit + card[i];
                 if(suit === 'ruutu' || suit === 'pata' || suit === 'risti' || suit === 'hertta') {
                     number = card[i+1];

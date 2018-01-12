@@ -17,6 +17,7 @@ function Tikki() {
 
     /** CONST ATTRIBUTES */
     this.maxplayers = 6;
+    this.MAXPOINTS = 5;
 }
 
 /** Add new player to the lobby */
@@ -49,10 +50,10 @@ Tikki.prototype.makeid = function() {
     let tikki = this;
 
     return new Promise(function(resolve, reject) {
-        var text = "";
-        var possible = "0123456789";
+        let text = "";
+        let possible = "0123456789";
     
-        for (var i = 0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         }
 
@@ -173,8 +174,12 @@ Tikki.prototype.getGame = function(req) {
                         });
                     }
                     else {
-                        tikki.getPoints().then((points) => {
-                            resolve({ status: "round ended", points: points });
+                        tikki.currentRound.readyPlaysForSending(req.playername).then((plays) => {
+                            tikki.getEndOfRoundStats().then((stats) => {
+                                tikki.getPoints().then((points) => {
+                                    resolve({ status: "round ended", plays: plays, points: points, stats: stats });
+                                });
+                            });
                         });
                     }
                 }
@@ -183,8 +188,13 @@ Tikki.prototype.getGame = function(req) {
                 }
             }
             else {
-                tikki.getPoints().then((points) => {
-                    resolve({ status: "Game has ended", points: points });
+                tikki.getEndOfGameStats().then((stats) => {
+                    tikki.getPoints().then((points) => {
+                        resolve({ status: "Game has ended",
+                                  points: points,
+                                  stats: stats
+                                });
+                    });
                 });
             }
         });
@@ -206,15 +216,7 @@ Tikki.prototype.play = function(req) {
                         tikki.currentRound.countPoints().then((response) => {
                             tikki.getPoints().then((points) => {
                                 tikki.setGameEndTimer();
-                                resolve({
-                                            status: "round ended",
-                                            points: points,
-                                            tikkiwinner: response.tikkiwinner,
-                                            twoend: response.twoend,
-                                            pokerwinner: response.pokerwinner,
-                                            winninghand: response.hand,
-                                            winningcards: response.cards
-                                        });
+                                resolve({ status: "round ended" });
                             });
                         });
                     }
@@ -353,11 +355,9 @@ Tikki.prototype.getPoints = function() {
 
     return new Promise(function(resolve, reject) {
         let points = "";
-
         for(let i = 0; i < tikki.players.length; i++) {
             points = points + tikki.players[i].name + " - " + tikki.players[i].points + "/";
         }
-
         resolve(points);
     }).catch((err) => {
         console.log(err);
@@ -381,12 +381,48 @@ Tikki.prototype.gameShouldEnd = function() {
 
     return new Promise(function(resolve, reject) {
         for(let i = 0; i < tikki.players.length; i++) {
-            if(tikki.players[i].points >= 20) {
+            if(tikki.players[i].points >= tikki.MAXPOINTS) {
                 resolve(true);
             }
         }
         resolve(false);
-        
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Tikki.prototype.getEndOfRoundStats = function() {
+    let tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        if(tikki.currentRound.roundOver) {
+            resolve({ 
+                      tikkiwinner: tikki.currentRound.tikkiwinner, 
+                      twoend: tikki.currentRound.twoend, 
+                      pokerwinner: tikki.currentRound.pokerwinner,
+                      winninghand: tikki.currentRound.winninghand
+                    });
+        }
+        else {
+            resolve('error');
+        }
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Tikki.prototype.getEndOfGameStats = function() {
+    let tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        tikki.gameShouldEnd().then((end) => {
+            if(end) {
+                resolve({});
+            }
+            else {
+                resolve('error');
+            }
+        });
     }).catch((err) => {
         console.log(err);
     });

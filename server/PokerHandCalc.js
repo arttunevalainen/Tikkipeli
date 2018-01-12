@@ -217,7 +217,6 @@ function isTwopairs(hand) {
         let number = hand[0].getNumber();
         let stopped = 0;
         let low = 0;
-        let highcard;
 
         for(let i = 1; i < hand.length; i++) {
             if(hand[i].getNumber() === number) {
@@ -227,20 +226,24 @@ function isTwopairs(hand) {
                 low = number;
             }
             else {
-                highcard = hand[i-1].getNumber();
                 number = hand[i].getNumber();
             }
         }
         for(let j = stopped; j < hand.length; j++) {
             if(hand[j].getNumber() === number) {
-                if(highcard === undefined) {
+                let highcard;
+                if(hand[0].getNumber() !== low) {
+                    highcard = hand[0].getNumber();
+                }
+                else if(hand[3].getNumber() !== low || hand[3].getNumber() !== number) {
+                    highcard = hand[3].getNumber();
+                }
+                else if(hand[5].getNumber() !== number) {
                     highcard = hand[5].getNumber();
                 }
-                
                 resolve({ status: true, handhigh: number, handlow: low, high: highcard });
             }
             else {
-                highcard = hand[j-1].getNumber();
                 number = hand[j].getNumber();
             }
         }

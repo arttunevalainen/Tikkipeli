@@ -20,6 +20,11 @@ class Round {
 
         this.startingplayer;
         this.currentplayer;
+
+        this.tikkiwinner;
+        this.twoend;
+        this.pokerwinner;
+        this.winninghand;
     }
 
     /** Start round */
@@ -133,13 +138,8 @@ class Round {
         let round = this;
 
         return new Promise(function(resolve, reject) {
-            for(var i = 0; i < round.plays.length; i++) {
-                //if(round.plays[i].player !== playername) {
-                    recentPlays = recentPlays + round.plays[i].player + " " + round.plays[i].card + "/";
-                /*}
-                else {
-                    resolve(recentPlays);
-                }*/
+            for(let i = 0; i < round.plays.length; i++) {
+                recentPlays = recentPlays + round.plays[i].player + " " + round.plays[i].card + "/";
             }
             resolve(recentPlays);
         }).catch((err) => {
@@ -310,15 +310,13 @@ class Round {
                 round.endingWithTwo().then((twoend) => {
                     round.checkHands().then((status) => {
                         let winnerIndex = status.winner;
-                        let cards = round.players[winnerIndex].hand.stringifyPlayedCards();
-                        let pokerwinner = round.players[winnerIndex].name;
 
-                        resolve({ status: 'ok',
-                                  tikkiwinner: tikkiwinner,
-                                  twoend: twoend,
-                                  pokerwinner: pokerwinner,
-                                  hand: round.players[status.winner].hand.poker.hand,
-                                  cards: cards });
+                        round.tikkiwinner = tikkiwinner;
+                        round.twoend = twoend;
+                        round.pokerwinner = round.players[winnerIndex].name;
+                        round.winninghand = round.players[status.winner].hand.poker.hand;
+
+                        resolve({ status: 'ok' });
                     });
                 });
             });
@@ -432,7 +430,7 @@ class Round {
 
         return new Promise(function(resolve, reject) {
             round.getPlayerIndex(round.startingplayer.name).then((index) => {
-                if(round.players[index].hand.playedCards[0].getNumber() === 2) {
+                if(round.players[index].hand.playedCards[4].getNumber() === 2) {
                     for(let i = 0; i < round.players.length; i++) {
                         if(i !== index) {
                             round.players[i].points = round.players[i].points - 3;

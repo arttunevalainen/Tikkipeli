@@ -14,13 +14,13 @@ class Player {
     }
 
     makeid() {
-        var player = this;
+        let player = this;
 
         return new Promise(function(resolve, reject) {
-            var text = "";
-            var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+            let text = "";
+            let possible = "abcdefghijklmnopqrstuvwxyz0123456789";
         
-            for (var i = 0; i < 6; i++) {
+            for (let i = 0; i < 6; i++) {
                 text += possible.charAt(Math.floor(Math.random() * possible.length));
             }
 
@@ -32,7 +32,7 @@ class Player {
     }
 
     cardPlayed(card) {
-        var player = this;
+        let player = this;
 
         return new Promise(function(resolve, reject) {
             player.hand.cardPlayed(card).then((status) => {
