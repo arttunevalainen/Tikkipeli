@@ -26,8 +26,10 @@
 }
 
 #playlistitem {
-    width: 150px;
-    height: 50px;
+    width: 200px;
+    height: 55px;
+    text-align: center;
+    padding: 0px;
 }
 
 #pointslistitem {
@@ -37,4 +39,9 @@
 
 #pointslist {
 
+}
+
+#playedCard {
+    width: 33px;
+    height: 50px;
 }

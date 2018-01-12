@@ -161,6 +161,8 @@ class Game extends Component {
         }
     }
 
+    
+
     getListofPlays() {
         let list = []; 
 
@@ -177,10 +179,9 @@ class Game extends Component {
         let listItems = this.getListofPlays();
 
         const list = listItems.map((play) => {
-            let splitplay = play.split(" - ");
-            console.log(splitplay);
+            let splitplay = play.split(" ");
             return (    <ListGroupItem id="playlistitem" key={play.toString()}>
-                            {play} <img id="playingcard" src={require('./cards/' + splitplay[1] + '.png')} alt={splitplay[1]}/>
+                            {splitplay[0]} <img id="playedCard" src={require('./cards/' + splitplay[1] + '.png')} alt={splitplay[1]}/>
                         </ListGroupItem> );
         });
 
