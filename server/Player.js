@@ -11,6 +11,9 @@ class Player {
         this.points = 0;
         this.starter = false;
         this.changedCards = false;
+
+        this.offline = false;
+        this.offlinetimer;
     }
 
     makeid() {
@@ -29,6 +32,26 @@ class Player {
         }).catch((err) => {
             console.log(err);
         });
+    }
+
+    offlineTimer() {
+        if(this.offlinetimer) {
+            clearTimeout(this.offlinetimer);
+        }
+
+        this.offlinetimer = setTimeout(this.goOffline, 30000, this);
+    }
+
+    goOffline(player) {
+        clearTimeout(player.offlinetimer);
+        player.offline = true;
+        console.log(player.name + " going offline");
+    }
+
+    resetOfflineTimer() {
+        if(this.offlinetimer) {
+            clearTimeout(this.offlinetimer);
+        }
     }
 
     cardPlayed(card) {

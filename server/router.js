@@ -17,14 +17,20 @@ router.post('/addplayer', function(req, res) {
     });
 });
 
-router.get('/getLobbies', function(req, res) {
-    lobbies.getLobbies().then((json) => {
+router.post('/getLobbies', function(req, res) {
+    lobbies.getLobbies(req.body).then((json) => {
         res.json({ status: json.status, lobs: json.lobs });
     });
 });
 
 router.post('/leaveLobby', function(req, res) {
     lobbies.deletePlayerFromLobby(req.body).then((json) => {
+        res.json({ status: json.status });
+    });
+});
+
+router.post('/leaveGame', function(req, res) {
+    lobbies.leaveGame(req.body).then((json) => {
         res.json({ status: json.status });
     });
 });

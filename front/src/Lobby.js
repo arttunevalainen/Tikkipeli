@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { getLobby, setupGame, leaveLobby } from './RequestService.js';
-import { Button, ListGroup, ListGroupItem } from 'reactstrap';
+import { Card, CardBody, Button, ListGroup, ListGroupItem } from 'reactstrap';
 import './Lobby.css';
 
 
@@ -105,14 +105,22 @@ class Lobby extends Component {
             <div id="lobby">
                 {this.state.playercount} / 6
                 {this.listLobby()}
+                
                 {admin &&
                     <Button type="button" color="success" id="readybutton" onClick={this.readyClicked}>Pelaamaan</Button>
                 }
                 <Button type="button" color="danger" id="readybutton" onClick={this.backClicked}>Takasin</Button>
+
                 {admin && <div id="admininfo"><h6>Olet aulan admin. Kun painat "pelaamaan", koko aula siirtyy peliin.</h6></div>}
-                <div>
-                    
-                </div>
+
+                <Card id="rules">
+                    <CardBody>
+                        Tikkipokeri<br/>
+                        Pelataan kunnes joku pelaajista ylittää 20 pistettä. Pelaajille jaetaan kortit, jonka jälkeen he voivat vaihtaa 0-4 korttia tai kaikki jos kaikki kortien arvot ovat alle 10.
+                        Tikin voittamisesta saa 3 pistettä ja parhaasta pokerikäsistä: pari 1, kaksiparia 2, kolmoset 3, suora 4, väri 5, täysikäsi 6, neloset ja värisuora 10 pistettä.
+                        Jos tikin voittaja lopettaa kakkosella, menettävät muut pelaajat 3 pistettä.
+                    </CardBody>
+                </Card>
             </div>
         );
     }

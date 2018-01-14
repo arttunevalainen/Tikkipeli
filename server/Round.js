@@ -76,6 +76,14 @@ class Round {
         let json = {};
     
         return new Promise(function(resolve, reject) {
+            round.getPlayerObject(req.playername, req.playercode).then((player) => {
+                if(round.currentplayer.name !== player.name) {
+                    player.offlineTimer();
+                }
+                else {
+                    player.resetOfflineTimer();
+                }
+            });
             round.getHand(req.playername, req.playercode).then((hand) => {
                 json.hand = hand;
                 round.listPlayers().then((players) =>  {
@@ -375,7 +383,7 @@ class Round {
                                 ownerofbesthand = i;
                             }
                             else if(playerhand.poker.low === besthand.low) {
-                                //Same hand with same pair
+                                //Same hand with pair
                             }
                         }
                     }
@@ -688,11 +696,10 @@ class Round {
 
         return new Promise(function(resolve, reject) {
             for(let i = 0; i < round.players.length; i++) {
-                if(!round.players[i].changedCards) {
+                if(!round.players[i].changedCards && !round.players[i].offline) {
                     resolve(false);
                 }
             }
-            //round.changePhase = false;
             resolve(true);
         }).catch((err) => {
             console.log(err);

@@ -6,6 +6,21 @@ function Lobbies() {
 
     this.players = [];
     this.lobbies = [];
+    this.deleteTimer
+
+    this.removeOfflinePlayersTimer();
+}
+
+Lobbies.prototype.removeOfflinePlayersTimer = function() {
+    this.deleteTimer = setInterval(this.removeOfflinePlayers, 60000, this);
+}
+
+Lobbies.prototype.removeOfflinePlayers = function(lobbies) {
+    for(let i = 0; i < lobbies.players.length; i++) {
+        if(lobbies.players[i].offline) {
+            console.log("removing " + lobbies.players.splice(i, 1));
+        }
+    }
 }
 
 Lobbies.prototype.newPlayer = function(req) {
@@ -108,14 +123,18 @@ Lobbies.prototype.joinLobby = function(req) {
     });
 }
 
-Lobbies.prototype.getLobbies = function() {
+Lobbies.prototype.getLobbies = function(req) {
     let lobbies = this;
 
     return new Promise(function(resolve) {
-        lobbies.listLobbies().then((lobs) =>  {
-            resolve({ lobs: lobs });
+        lobbies.getPlayerObject(req.playername, req.playercode).then((player) => {
+            if(player !== 'error') {
+                player.offlineTimer();
+            }
+            lobbies.listLobbies().then((lobs) =>  {
+                resolve({ lobs: lobs });
+            });
         });
-
     }).catch((err) => {
         console.log(err);
     });
@@ -145,6 +164,21 @@ Lobbies.prototype.getPlayerObject = function(name, code) {
         for(let i = 0; i < lobbies.players.length; i++) {
             if(lobbies.players[i].name === name && lobbies.players[i].code === code) {
                 resolve(lobbies.players[i]);
+            }
+        }
+        resolve("error");
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Lobbies.prototype.getPlayerIndex = function(name, code) {
+    let lobbies =  this;
+    
+    return new Promise(function(resolve) {
+        for(let i = 0; i < lobbies.players.length; i++) {
+            if(lobbies.players[i].name === name && lobbies.players[i].code === code) {
+                resolve(i);
             }
         }
         resolve("error");
@@ -202,6 +236,35 @@ Lobbies.prototype.play = function(req) {
         lobbies.findLobby(req.lobbycode).then((lobby) => {
             lobby.play(req).then((json) => {
                 resolve(json);
+            });
+        });
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+Lobbies.prototype.leaveGame = function(req) {
+    let lobbies = this;
+
+    return new Promise(function(resolve) {
+        lobbies.findLobby(req.lobbycode).then((lobby) => {
+            lobbies.getPlayerObject(req.playername, req.playercode).then((player) => {
+                lobby.leaveGame(player).then((status) => {
+                    if(status === 'deleted') {
+                        if(lobby.players.length === 0) {
+                            lobbies.getLobbyIndex(lobby.code).then((index) => {
+                                lobbies.lobbies.splice(index, 1);
+                                resolve({ status: 'deleted' });
+                            });
+                        }
+                        else {
+                            resolve({ status: 'deleted' });
+                        }
+                    }
+                    else {
+                        resolve('error');
+                    }
+                });
             });
         });
     }).catch((err) => {

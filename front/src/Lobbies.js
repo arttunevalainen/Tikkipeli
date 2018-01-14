@@ -31,7 +31,7 @@ class Lobbies extends Component {
     loadLobbies() {
         let lobbyhall = this;
 
-        getLobbies().then((data) => {
+        getLobbies(this.props.playername, this.props.playercode).then((data) => {
             if(data.lobs !== undefined) {
                 lobbyhall.setState({ lobs: data.lobs });
             }
@@ -94,7 +94,7 @@ class Lobbies extends Component {
                     <Button color="success" id="formbutton" onClick={this.createLobbyClicked}>Luo aula</Button>
                     <Button color="primary" id="rulesbutton" onClick={this.toggle}>Säännöt</Button>
                     <Collapse isOpen={this.state.collapse}>
-                        <Card>
+                        <Card id="rules">
                             <CardBody>
                                 Tikkipokeri<br></br>
                                 Pelataan kunnes joku pelaajista ylittää 20 pistettä. Pelaajille jaetaan kortit, jonka jälkeen he voivat vaihtaa 0-4 korttia tai kaikki jos kaikki kortien arvot ovat alle 10.

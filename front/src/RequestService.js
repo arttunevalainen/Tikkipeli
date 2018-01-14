@@ -5,9 +5,12 @@ import axios from 'axios';
 const address = "http://localhost:8081/";
 
 
-export function getLobbies() {
+export function getLobbies(name, code) {
     return new Promise(function(resolve, reject) {
-        axios.get(address + 'getLobbies')
+        axios.post(address + 'getLobbies', {
+                playername: name,
+                playercode: code
+            })
             .then(function (response) {
                 resolve(response.data);
             })
@@ -40,6 +43,24 @@ export function setupGame(name, code, lobbycode) {
 export function leaveLobby(name, code, lobbycode) {
     return new Promise(function(resolve) {
         axios.post(address + 'leaveLobby', {
+                playername: name,
+                playercode: code,
+                lobbycode: lobbycode
+            })
+            .then(function (response) {
+                resolve(response.data);
+            })
+            .catch(function (error) {
+                console.log(error)
+            });
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
+export function leaveGame(name, code, lobbycode) {
+    return new Promise(function(resolve) {
+        axios.post(address + 'leaveGame', {
                 playername: name,
                 playercode: code,
                 lobbycode: lobbycode

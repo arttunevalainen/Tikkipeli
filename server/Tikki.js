@@ -17,7 +17,7 @@ function Tikki() {
 
     /** CONST ATTRIBUTES */
     this.maxplayers = 6;
-    this.MAXPOINTS = 5;
+    this.MAXPOINTS = 3;
 }
 
 /** Add new player to the lobby */
@@ -101,6 +101,24 @@ Tikki.prototype.leaveLobby = function(player) {
     });
 }
 
+Tikki.prototype.leaveGame = function(player) {
+    let tikki = this;
+
+    return new Promise(function(resolve, reject) {
+        tikki.getPlayerIndex(player.name, player.code).then((index) => {
+            if(index !== "error") {
+                tikki.players.splice(index, 1);
+                resolve('deleted');
+            }
+            else {
+                resolve("error");
+            }
+        });
+    }).catch((err) => {
+        console.log(err);
+    });
+}
+
 /** Returns player object from players[] */
 Tikki.prototype.getPlayerIndex = function(name) {
     let tikki = this;
@@ -129,7 +147,7 @@ Tikki.prototype.getLobby = function() {
 
         let adminname = tikki.adminplayer.name;
 
-        tikki.listPlayers().then((players) =>  {
+        tikki.listPlayers().then((players) => {
             let json = { players: players, isadmin: adminname, gameready: gameready };
             resolve(json);
         });

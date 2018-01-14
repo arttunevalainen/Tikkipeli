@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { getGame, sendPlay, changeCards } from './RequestService.js';
+import { getGame, sendPlay, changeCards, leaveGame } from './RequestService.js';
 import { Button, ListGroup, ListGroupItem } from 'reactstrap';
 import './Game.css';
 
@@ -9,7 +9,7 @@ class Game extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {hand: ''};
+        this.state = { hand: '', gameEnded: false };
 
         this.cardstochange = [];
 
@@ -23,6 +23,7 @@ class Game extends Component {
         this.getListofPoints = this.getListofPoints.bind(this);
         this.renderPoints = this.renderPoints.bind(this);
         this.changeSelectedCards = this.changeSelectedCards.bind(this);
+        this.leaveGameClicked = this.leaveGameClicked.bind(this);
 
         this.updateGame();
     }
@@ -73,7 +74,8 @@ class Game extends Component {
                                     points: data.points });
                 }
                 else if(data.status === 'Game has ended') {
-                    game.setState({ points: data.points,
+                    game.setState({ gameEnded: true,
+                                    points: data.points,
                                     hand: '',
                                     plays: '' });
                 }
@@ -161,8 +163,6 @@ class Game extends Component {
         }
     }
 
-    
-
     getListofPlays() {
         let list = []; 
 
@@ -240,6 +240,16 @@ class Game extends Component {
         });
     }
 
+    leaveGameClicked() {
+        let game = this;
+
+        leaveGame(this.props.playername, this.props.playercode, this.props.lobbycode).then((data) => {
+            if(data.status === 'deleted') {
+                game.props.sendData();
+            }
+        });
+    }
+
     render() {
 
         let turn = this.state.currentplayer === this.props.playername;
@@ -249,6 +259,7 @@ class Game extends Component {
                 {this.state.badplay}
                 {this.renderplayercards()}
                 {this.state.changecards && <Button type="button" color="success" id="changecardsbutton" onClick={this.changeSelectedCards}>Vaihda kortit</Button>}
+                {this.state.gameEnded && <Button type="button" color="success" id="changecardsbutton" onClick={this.leaveGameClicked}>Takaisin Aulatilaan</Button>}
                 {turn && <p>Your turn!</p>}
                 {this.renderPlays()}
                 {this.renderPoints()}
