@@ -1,5 +1,6 @@
 #lobby {
     text-align: center;
+    margin-right: 0px;
 }
 
 #lobbylist {
@@ -26,5 +27,14 @@
 }
 
 #rules {
+    margin-top: 20px;
+    margin-right: 0px;
+    border: none;
+}
+
+#cardbody {
     width: 600px;
+    margin: auto;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
 }

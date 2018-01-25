@@ -2,6 +2,11 @@
 
 #gameobjects {
     margin-top: 40px;
+    text-align: center;
+}
+
+#cardobjects {
+    text-align: center;
 }
 
 #playingcards {
@@ -9,12 +14,25 @@
     align-items: center;
     justify-content: center;
 }
+
+#cardsselected {
+    color: red;
+    padding: 0px;
+    width: 500px;
+    height: 30px;
+    margin: auto;
+}
+
+#selectedrow {
+    padding: 0px;
+    width: 80px;
+}
+
 #playingcard {
     width: 100px;
     height: 150px;
     border-style: solid;
     border-width: 1px;
-
     margin-left: 1px;
 }
 
@@ -44,4 +62,9 @@
 #playedCard {
     width: 33px;
     height: 50px;
+}
+
+#changecardsbutton {
+    margin-top: 40px;
+
 }

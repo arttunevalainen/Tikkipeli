@@ -1,0 +1,46 @@
+
+#lobbies {
+    text-align: center;
+}
+
+#lobbiesitem {
+    width: 60%;
+    height: 60px;
+    padding: 10px;
+}
+
+#lobbieslist {
+    display: flex;
+    align-items : center;
+    justify-content : center;
+}
+
+#lobbyline {
+    margin-top: 7px;
+    display: flex;
+    align-items : center;
+    justify-content : center;
+}
+
+#lobbyjoinbutton {
+    position: absolute;
+    right: 20px;
+    width: 150px;
+}
+
+#lobbyname {
+    position: absolute;
+    left: 20px;
+    margin-bottom: 0px;
+}
+
+#playernumber {
+    margin-bottom: 0px;
+}
+
+#createlobbybutton {
+    width: 200px;
+    height: 60px;
+    font-size: 24px;
+    margin-top: 20px;
+}

@@ -9,7 +9,7 @@ class Lobby extends Component {
     constructor(props) {
         super(props);
 
-        this.state = ({ players: " ", playercount: 0, admin: this.props.admin });
+        this.state = ({ players: " ", playercount: 0, admin: this.props.admin, status: '' });
 
         this.saveplayers = this.savePlayers.bind(this);
         this.makeplayerlist = this.makeplayerlist.bind(this);
@@ -33,7 +33,6 @@ class Lobby extends Component {
         let lobby = this;
 
         this.makeplayerlist().then((data) => {
-            console.log(data.admin);
             let amIAdmin = false;
             if(data.admin === lobby.props.playername) {
                 amIAdmin = true;
@@ -42,7 +41,9 @@ class Lobby extends Component {
             lobby.setState({ players: data.players, gameready: data.gameready, admin: amIAdmin });
 
             let listlen = lobby.getListofPlayers().length;
-            lobby.setState({ playercount : listlen });
+            if(lobby.state.playercount !== listlen) {
+                lobby.setState({ playercount : listlen, status: '' });
+            }
 
             if(lobby.state.gameready === "true") {
                 clearInterval(lobby.interval);
@@ -86,7 +87,12 @@ class Lobby extends Component {
     readyClicked() {
         let lobby = this;
         setupGame(this.props.playername, this.props.playercode, this.props.lobbycode).then((data) => {
-            lobby.props.sendData();
+            if(data.status === 'ok') {
+                lobby.props.sendData();
+            }
+            else {
+                lobby.setState({ status: data.status });
+            }
         });
     }
 
@@ -104,6 +110,7 @@ class Lobby extends Component {
         return (
             <div id="lobby">
                 {this.state.playercount} / 6
+                <br/>{this.state.status}
                 {this.listLobby()}
                 
                 {admin &&
@@ -114,8 +121,8 @@ class Lobby extends Component {
                 {admin && <div id="admininfo"><h6>Olet aulan admin. Kun painat "pelaamaan", koko aula siirtyy peliin.</h6></div>}
 
                 <Card id="rules">
-                    <CardBody>
-                        Tikkipokeri<br/>
+                    <CardBody id="cardbody">
+                        <h4>Tikkipokeri</h4>
                         Pelataan kunnes joku pelaajista ylittää 20 pistettä. Pelaajille jaetaan kortit, jonka jälkeen he voivat vaihtaa 0-4 korttia tai kaikki jos kaikki kortien arvot ovat alle 10.
                         Tikin voittamisesta saa 3 pistettä ja parhaasta pokerikäsistä: pari 1, kaksiparia 2, kolmoset 3, suora 4, väri 5, täysikäsi 6, neloset ja värisuora 10 pistettä.
                         Jos tikin voittaja lopettaa kakkosella, menettävät muut pelaajat 3 pistettä.

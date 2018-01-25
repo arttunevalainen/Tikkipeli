@@ -86,12 +86,20 @@ Lobbies.prototype.createNewLobby = function(req) {
 
         tikki.makeid().then(() => {
             lobbies.getPlayerObject(req.playername, req.playercode).then((player) => {
-                tikki.addPlayer(player).then((status) => {
-                    if(status.status === 'ok') {
-                        lobbies.lobbies.push(tikki);
-                        resolve({ status: 'ok', admin: status.admin, lobbycode: tikki.code });
-                    }
-                });
+                if(player) {
+                    tikki.addPlayer(player).then((status) => {
+                        if(status.status === 'ok') {
+                            lobbies.lobbies.push(tikki);
+                            resolve({ status: 'ok', admin: status.admin, lobbycode: tikki.code });
+                        }
+                        else {
+                            resolve({ status: 'error' });
+                        }
+                    });
+                }
+                else {
+                    resolve({ status: 'error' });
+                }
             });
         });
 
@@ -192,9 +200,14 @@ Lobbies.prototype.getLobby = function(req) {
 
     return new Promise(function(resolve) {
         lobbies.findLobby(req.lobbycode).then((lobby) => {
-            lobby.getLobby().then((json) => {
-                resolve(json);
-            });
+            if(lobby) {
+                lobby.getLobby().then((json) => {
+                    resolve(json);
+                });
+            }
+            else {
+                resolve({ status: 'error' });
+            }
         });
     }).catch((err) => {
         console.log(err);
@@ -206,9 +219,14 @@ Lobbies.prototype.startGame = function(req) {
 
     return new Promise(function(resolve) {
         lobbies.findLobby(req.lobbycode).then((lobby) => {
-            lobby.startGame(req).then((json) => {
-                resolve(json);
-            });
+            if(lobby) {
+                lobby.startGame(req).then((json) => {
+                    resolve(json);
+                });
+            }
+            else {
+                resolve({ status: 'error' });
+            }
         });
     }).catch((err) => {
         console.log(err);
@@ -220,9 +238,14 @@ Lobbies.prototype.getGame = function(req) {
 
     return new Promise(function(resolve) {
         lobbies.findLobby(req.lobbycode).then((lobby) => {
-            lobby.getGame(req).then((json) => {
-                resolve(json);
-            });
+            if(lobby) {
+                lobby.getGame(req).then((json) => {
+                    resolve(json);
+                });
+            }
+            else {
+                resolve({ status: 'error' });
+            }
         });
     }).catch((err) => {
         console.log(err);
@@ -234,9 +257,14 @@ Lobbies.prototype.play = function(req) {
 
     return new Promise(function(resolve) {
         lobbies.findLobby(req.lobbycode).then((lobby) => {
-            lobby.play(req).then((json) => {
-                resolve(json);
-            });
+            if(lobby) {
+                lobby.play(req).then((json) => {
+                    resolve(json);
+                });
+            }
+            else {
+                resolve({ status: 'error' });
+            }
         });
     }).catch((err) => {
         console.log(err);
@@ -248,24 +276,34 @@ Lobbies.prototype.leaveGame = function(req) {
 
     return new Promise(function(resolve) {
         lobbies.findLobby(req.lobbycode).then((lobby) => {
-            lobbies.getPlayerObject(req.playername, req.playercode).then((player) => {
-                lobby.leaveGame(player).then((status) => {
-                    if(status === 'deleted') {
-                        if(lobby.players.length === 0) {
-                            lobbies.getLobbyIndex(lobby.code).then((index) => {
-                                lobbies.lobbies.splice(index, 1);
-                                resolve({ status: 'deleted' });
-                            });
-                        }
-                        else {
-                            resolve({ status: 'deleted' });
-                        }
+            if(lobby) {
+                lobbies.getPlayerObject(req.playername, req.playercode).then((player) => {
+                    if(player) {
+                        lobby.leaveGame(player).then((status) => {
+                            if(status === 'deleted') {
+                                if(lobby.players.length === 0) {
+                                    lobbies.getLobbyIndex(lobby.code).then((index) => {
+                                        lobbies.lobbies.splice(index, 1);
+                                        resolve({ status: 'deleted' });
+                                    });
+                                }
+                                else {
+                                    resolve({ status: 'deleted' });
+                                }
+                            }
+                            else {
+                                resolve({ status: 'error' });
+                            }
+                        });
                     }
                     else {
-                        resolve('error');
+                        resolve({ status: 'error' });
                     }
                 });
-            });
+            }
+            else {
+                resolve({ status: 'error' });
+            }
         });
     }).catch((err) => {
         console.log(err);

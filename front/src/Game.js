@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { getGame, sendPlay, changeCards, leaveGame } from './RequestService.js';
-import { Button, ListGroup, ListGroupItem } from 'reactstrap';
+import { Button, ListGroup, ListGroupItem, Row, Col } from 'reactstrap';
 import './Game.css';
 
 
@@ -9,7 +9,7 @@ class Game extends Component {
     constructor(props) {
         super(props);
 
-        this.state = { hand: '', gameEnded: false };
+        this.state = { hand: '', gameEnded: false, changecards: false, first: false, second: false, third:false, fourth: false, fifth: false };
 
         this.cardstochange = [];
 
@@ -24,6 +24,7 @@ class Game extends Component {
         this.renderPoints = this.renderPoints.bind(this);
         this.changeSelectedCards = this.changeSelectedCards.bind(this);
         this.leaveGameClicked = this.leaveGameClicked.bind(this);
+        this.renderSelected = this.renderSelected.bind(this);
 
         this.updateGame();
     }
@@ -46,6 +47,7 @@ class Game extends Component {
         if(this.state.currentplayer !== this.props.playername) {
             getGame(this.props.playername, this.props.playercode, game.props.lobbycode).then((data) => {
                 if(data.status === 'changephase') {
+                    console.log(data);
                     game.setState({ plays: '' });
                     if(data.changestatus === 'waiting') {
                         game.setState({ changecards: true });
@@ -91,19 +93,31 @@ class Game extends Component {
         let game = this;
         let cards = this.getCards();
 
-        if(this.state.changephase) {
-            if(!game.cardstochange.includes(cards[parseInt(event.target.alt, 10)])) {
-                game.cardstochange.push(cards[parseInt(event.target.alt, 10)]);
+        if(this.state.changephase && this.state.changecards) {
+
+            let numberofcard = parseInt(event.target.alt, 10);
+            if(!game.cardstochange.includes(cards[numberofcard])) {
+                game.cardstochange.push(cards[numberofcard]);
+
+                if(numberofcard === 0) { game.setState({ first: true }); }
+                else if(numberofcard === 1) { game.setState({ second: true }); }
+                else if(numberofcard === 2) { game.setState({ third: true }); }
+                else if(numberofcard === 3) { game.setState({ fourth: true }); }
+                else if(numberofcard === 4) { game.setState({ fifth: true }); }
             }
             else {
                 for(let i = 0; i < game.cardstochange.length; i++) {
-                    if(game.cardstochange[i] === cards[parseInt(event.target.alt, 10)]) {
+                    if(game.cardstochange[i] === cards[numberofcard]) {
                         game.cardstochange.splice(i, 1);
+
+                        if(numberofcard === 0) { game.setState({ first: false }); }
+                        else if(numberofcard === 1) { game.setState({ second: false }); }
+                        else if(numberofcard === 2) { game.setState({ third: false }); }
+                        else if(numberofcard === 3) { game.setState({ fourth: false }); }
+                        else if(numberofcard === 4) { game.setState({ fifth: false }); }
                     }
                 }
             }
-
-            console.log(game.cardstochange);
         }
         else {
             if(this.state.currentplayer === this.props.playername) {
@@ -135,22 +149,15 @@ class Game extends Component {
 
         if(this.state.hand !== '') {
             if(this.state.hand !== undefined) {
-
                 let cards = this.getCards();
-
-                let five = (cards[4]);
-                let four = (cards[3]);
-                let three = (cards[2]);
-                let two = (cards[1]);
-                let one = (cards[0]);
 
                 return (
                     <div id="playingcards">
-                        {one && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[0] + '.png')} alt="0"/>}
-                        {two && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[1] + '.png')} alt="1"/>}
-                        {three && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[2] + '.png')} alt="2"/>}
-                        {four && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[3] + '.png')} alt="3"/>}
-                        {five && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[4] + '.png')} alt="4"/>}
+                        {cards[0] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[0] + '.png')} alt="0"/>}
+                        {cards[1] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[1] + '.png')} alt="1"/>}
+                        {cards[2] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[2] + '.png')} alt="2"/>}
+                        {cards[3] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[3] + '.png')} alt="3"/>}
+                        {cards[4] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[4] + '.png')} alt="4"/>}
                     </div>
                 );
             }
@@ -161,6 +168,20 @@ class Game extends Component {
         else {
             return (<div>Waiting...</div>);
         }
+    }
+
+    renderSelected() {
+        return (
+            <div>
+                <Row id="cardsselected">
+                    <Col id="selectedrow">{this.state.first && <h4>Valittu</h4>}</Col>
+                    <Col id="selectedrow">{this.state.second && <h4>Valittu</h4>}</Col>
+                    <Col id="selectedrow">{this.state.third && <h4>Valittu</h4>}</Col>
+                    <Col id="selectedrow">{this.state.fourth && <h4>Valittu</h4>}</Col>
+                    <Col id="selectedrow">{this.state.fifth && <h4>Valittu</h4>}</Col>
+                </Row>
+            </div>
+        );
     }
 
     getListofPlays() {
@@ -217,6 +238,7 @@ class Game extends Component {
         game.stringifyCardArray(game.cardstochange).then((cardstring) => {
             changeCards(game.props.playername, game.props.playercode, game.props.lobbycode, cardstring).then((data) => {
                 if(data.status === 'ok') {
+                    game.setState({ first: false, second: false, third:false, fourth: false, fifth: false });
                     game.cardstochange = [];
                     game.updateGame();
                 }
@@ -257,8 +279,11 @@ class Game extends Component {
         return (
             <div id="gameobjects">
                 {this.state.badplay}
-                {this.renderplayercards()}
-                {this.state.changecards && <Button type="button" color="success" id="changecardsbutton" onClick={this.changeSelectedCards}>Vaihda kortit</Button>}
+                <div id="cardobjects">
+                    {this.renderplayercards()}
+                    {this.renderSelected()}
+                </div>
+                {this.state.changecards && <Button type="button" color="success" id="changecardsbutton" onClick={this.changeSelectedCards}>Vaihda valitut kortit</Button>}
                 {this.state.gameEnded && <Button type="button" color="success" id="changecardsbutton" onClick={this.leaveGameClicked}>Takaisin Aulatilaan</Button>}
                 {turn && <p>Your turn!</p>}
                 {this.renderPlays()}

@@ -17,7 +17,7 @@ function Tikki() {
 
     /** CONST ATTRIBUTES */
     this.maxplayers = 6;
-    this.MAXPOINTS = 3;
+    this.MAXPOINTS = 20;
 }
 
 /** Add new player to the lobby */
