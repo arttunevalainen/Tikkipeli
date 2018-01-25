@@ -39,7 +39,7 @@ class Player {
             clearTimeout(this.offlinetimer);
         }
 
-        this.offlinetimer = setTimeout(this.goOffline, 30000, this);
+        this.offlinetimer = setTimeout(this.goOffline, 10000, this);
     }
 
     goOffline(player) {

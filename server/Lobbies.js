@@ -201,6 +201,11 @@ Lobbies.prototype.getLobby = function(req) {
     return new Promise(function(resolve) {
         lobbies.findLobby(req.lobbycode).then((lobby) => {
             if(lobby) {
+                lobbies.getPlayerObject(req.playername, req.playercode).then((player) => {
+                    if(player !== 'error') {
+                        player.offlineTimer();
+                    }
+                });
                 lobby.getLobby().then((json) => {
                     resolve(json);
                 });
@@ -239,6 +244,11 @@ Lobbies.prototype.getGame = function(req) {
     return new Promise(function(resolve) {
         lobbies.findLobby(req.lobbycode).then((lobby) => {
             if(lobby) {
+                lobbies.getPlayerObject(req.playername, req.playercode).then((player) => {
+                    if(player !== 'error') {
+                        player.offlineTimer();
+                    }
+                });
                 lobby.getGame(req).then((json) => {
                     resolve(json);
                 });
