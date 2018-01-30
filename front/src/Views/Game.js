@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { getGame, sendPlay, changeCards, leaveGame } from './RequestService.js';
+import { getGame, sendPlay, changeCards, leaveGame } from '../Services/RequestService.js';
 import { Button, ListGroup, ListGroupItem, Row, Col } from 'reactstrap';
-import './Game.css';
+import '../css/Game.css';
 
 
 class Game extends Component {
@@ -153,11 +153,11 @@ class Game extends Component {
 
                 return (
                     <div id="playingcards">
-                        {cards[0] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[0] + '.png')} alt="0"/>}
-                        {cards[1] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[1] + '.png')} alt="1"/>}
-                        {cards[2] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[2] + '.png')} alt="2"/>}
-                        {cards[3] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[3] + '.png')} alt="3"/>}
-                        {cards[4] && <img id="playingcard" onClick={this.cardClick} src={require('./cards/' + cards[4] + '.png')} alt="4"/>}
+                        {cards[0] && <img id="playingcard" onClick={this.cardClick} src={require('../static/cards/' + cards[0] + '.png')} alt="0"/>}
+                        {cards[1] && <img id="playingcard" onClick={this.cardClick} src={require('../static/cards/' + cards[1] + '.png')} alt="1"/>}
+                        {cards[2] && <img id="playingcard" onClick={this.cardClick} src={require('../static/cards/' + cards[2] + '.png')} alt="2"/>}
+                        {cards[3] && <img id="playingcard" onClick={this.cardClick} src={require('../static/cards/' + cards[3] + '.png')} alt="3"/>}
+                        {cards[4] && <img id="playingcard" onClick={this.cardClick} src={require('../static/cards/' + cards[4] + '.png')} alt="4"/>}
                     </div>
                 );
             }
@@ -202,7 +202,7 @@ class Game extends Component {
         const list = listItems.map((play) => {
             let splitplay = play.split(" ");
             return (    <ListGroupItem id="playlistitem" key={play.toString()}>
-                            {splitplay[0]} <img id="playedCard" src={require('./cards/' + splitplay[1] + '.png')} alt={splitplay[1]}/>
+                            {splitplay[0]} <img id="playedCard" src={require('../static/cards/' + splitplay[1] + '.png')} alt={splitplay[1]}/>
                         </ListGroupItem> );
         });
 

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { getLobbies, createLobby, joinLobby } from './RequestService.js';
+import { getLobbies, createLobby, joinLobby } from '../Services/RequestService.js';
 import { Button, ListGroup, ListGroupItem } from 'reactstrap';
-import './Lobbies.css';
+import '../css/Lobbies.css';
 
 
 class Lobbies extends Component {

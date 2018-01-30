@@ -1,7 +1,7 @@
-import { newPlayer } from './RequestService.js';
+import { newPlayer } from '../Services/RequestService.js';
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
-import './Login.css';
+import '../css/Login.css';
 
 
 

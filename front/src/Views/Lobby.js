@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { getLobby, setupGame, leaveLobby } from './RequestService.js';
+import { getLobby, setupGame, leaveLobby } from '../Services//RequestService.js';
 import { Card, CardBody, Button, ListGroup, ListGroupItem } from 'reactstrap';
-import './Lobby.css';
+import '../css/Lobby.css';
 
 
 class Lobby extends Component {

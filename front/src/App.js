@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import Login from './Login';
-import Lobby from './Lobby';
-import Game from './Game';
-import Lobbies from './Lobbies';
+import Login from './Views/Login';
+import Lobby from './Views/Lobby';
+import Game from './Views/Game';
+import Lobbies from './Views/Lobbies';
 
 // REDUX KOKEILUA
 import { createStore } from 'redux';
-import counter from './reducers.js';
+import counter from './Services/reducers.js';
 import { Provider } from 'react-redux'
 const store = createStore(counter);
 
