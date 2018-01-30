@@ -4,18 +4,35 @@ import Lobby from './Lobby';
 import Game from './Game';
 import Lobbies from './Lobbies';
 
+// REDUX KOKEILUA
+import { createStore } from 'redux';
+import counter from './reducers.js';
+import { Provider } from 'react-redux'
+const store = createStore(counter);
+
 
 
 class App extends Component {
 
     constructor() {
         super();
-        this.state = {playername: '', playercode: '', component : "Login"};
+        this.state = {};
 
         this.getLoginData = this.getLoginData.bind(this);
         this.getLobbyData = this.getLobbyData.bind(this);
         this.goToLobby = this.goToLobby.bind(this);
         this.backToLobby = this.backToLobby.bind(this);
+
+
+        //REDUX KOKEILUA
+        let originalState = { playername: '', playercode: '', component: "Login" };
+        console.log(store.getState());
+        store.dispatch({ type: 'NEWPLAYER', name: originalState.playername, code: originalState.playercode, component: originalState.component });
+    }
+
+    componentDidMount() {
+        this.setState(store.getState());
+        console.log(store.getState());
     }
 
     getLoginData(data) {
@@ -39,6 +56,8 @@ class App extends Component {
     }
 
 	render() {
+
+        //<Provider store={store}>TÄHÄN VÄLIIN KAIKKI MUOKATTAVA</Provider>
 
         if(this.state.component === "Login") {
             return (

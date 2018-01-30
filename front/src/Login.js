@@ -38,17 +38,20 @@ class Login extends Component {
 
     render() {
         return (
-            <div id="form">
-                <form onSubmit={this.handleSubmit}>
-                    <label>
-                        <h2>Nimi:</h2>
-                        <input id="nameinput" type="text" value={this.state.value} onChange={this.handleChange}></input>
-                    </label>
-                    <br/>
-                    <label id="errormessage">{this.errorMessage()}</label>
-                    <br/><br/>
-                    <Button color="success" id="formbutton" type="submit">Valmis</Button>
-                </form>
+            <div id="loginpage">
+                <h1>Tikki</h1>
+                <div id="form">
+                    <form onSubmit={this.handleSubmit}>
+                        <label>
+                            <h2>Nimi:</h2>
+                            <input id="nameinput" type="text" value={this.state.value} onChange={this.handleChange}></input>
+                        </label>
+                        <br/>
+                        <label id="errormessage">{this.errorMessage()}</label>
+                        <br/><br/>
+                        <Button color="success" id="formbutton" type="submit">Valmis</Button>
+                    </form>
+                </div>
             </div>
         );
     }
