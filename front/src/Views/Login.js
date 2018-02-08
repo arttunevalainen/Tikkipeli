@@ -2,6 +2,7 @@ import { newPlayer } from '../Services/RequestService.js';
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
 import '../css/Login.css';
+import Tester from './components/Tester.js';
 
 
 
@@ -22,12 +23,12 @@ class Login extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        newPlayer(this.state.value).then((data) => {
-            if(data.status === "ok") {
-                this.props.sendData(data);
+        newPlayer(this.state.value).then((response) => {
+            if(response.data.status === "ok") {
+                this.props.sendData(response.data);
             }
             else {
-                this.setState({error: 'Name must be over 2 chars or name already taken!'})
+                this.setState({error: 'Error!'});
             }
         });
     }
@@ -39,6 +40,7 @@ class Login extends Component {
     render() {
         return (
             <div id="loginpage">
+                <Tester></Tester>
                 <h1>Tikki</h1>
                 <div id="form">
                     <form onSubmit={this.handleSubmit}>

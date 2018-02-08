@@ -28,26 +28,22 @@ class Lobbies extends Component {
     }
 
     loadLobbies() {
-        let lobbyhall = this;
-
-        getLobbies(this.props.playername, this.props.playercode).then((data) => {
-            if(data.lobs !== undefined) {
-                lobbyhall.setState({ lobs: data.lobs });
+        getLobbies(this.props.playername, this.props.playercode).then((response) => {
+            if(response.data.lobs !== undefined) {
+                this.setState({ lobs: response.data.lobs });
             }
         });
     }
-
+    
     createLobbyClicked() {
-        let lobbyhall = this;
-        createLobby(this.props.playername, this.props.playercode).then((data) => {
-            lobbyhall.props.sendData(data);
-        })
+        createLobby(this.props.playername, this.props.playercode).then((response) => {
+            this.props.sendData(response.data);
+        });
     }
 
     lobbyclicked(event) {
-        let lobbyhall = this;
-        joinLobby(this.props.playername, this.props.playercode, event).then((data) => {
-            lobbyhall.props.sendData(data);
+        joinLobby(this.props.playername, this.props.playercode, event).then((response) => {
+            this.props.sendData(response.data);
         });
     }
 

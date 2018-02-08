@@ -25,7 +25,7 @@ Lobbies.prototype.removeOfflinePlayers = function(lobbies) {
 
 Lobbies.prototype.newPlayer = function(req) {
     let lobbies = this;
-
+    
     return new Promise(function(resolve) {
         let nameTaken = false;
         let name =  req.playername;

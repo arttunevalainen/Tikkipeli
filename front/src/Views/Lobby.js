@@ -9,7 +9,7 @@ class Lobby extends Component {
     constructor(props) {
         super(props);
 
-        this.state = ({ players: " ", playercount: 0, admin: this.props.admin, status: '' });
+        this.state = { players: " ", playercount: 0, admin: this.props.admin, status: '' };
 
         this.saveplayers = this.savePlayers.bind(this);
         this.makeplayerlist = this.makeplayerlist.bind(this);
@@ -33,6 +33,7 @@ class Lobby extends Component {
         let lobby = this;
 
         this.makeplayerlist().then((data) => {
+
             let amIAdmin = false;
             if(data.admin === lobby.props.playername) {
                 amIAdmin = true;
@@ -52,16 +53,9 @@ class Lobby extends Component {
         });
     }
 
-    makeplayerlist() {
-        let lobby = this;
-
-        return new Promise(function(resolve, reject) {
-            getLobby(lobby.props.playername, lobby.props.playercode, lobby.props.lobbycode).then((data) => {
-                resolve(data);
-            });
-        }).catch((err) => {
-            console.log(err);
-        });
+    async makeplayerlist() {
+        let response = await getLobby(this.props.playername, this.props.playercode, this.props.lobbycode);
+        return response.data;
     }
 
     getListofPlayers() {
@@ -75,7 +69,7 @@ class Lobby extends Component {
     listLobby() {
         let listItems = this.getListofPlayers();
         
-        const list = listItems.map((name) =>
+        let list = listItems.map((name) =>
             <ListGroupItem id="listitem" key={name.toString()}>
                 {name}
             </ListGroupItem>
@@ -85,13 +79,12 @@ class Lobby extends Component {
     }
 
     readyClicked() {
-        let lobby = this;
-        setupGame(this.props.playername, this.props.playercode, this.props.lobbycode).then((data) => {
-            if(data.status === 'ok') {
-                lobby.props.sendData();
+        setupGame(this.props.playername, this.props.playercode, this.props.lobbycode).then((response) => {
+            if(response.data.status === 'ok') {
+                this.props.sendData();
             }
             else {
-                lobby.setState({ status: data.status });
+                this.setState({ status: response.data.status });
             }
         });
     }
@@ -99,7 +92,7 @@ class Lobby extends Component {
     backClicked() {
         let lobby = this;
         clearInterval(this.interval);
-        leaveLobby(this.props.playername, this.props.playercode, this.props.lobbycode).then((data) => {
+        leaveLobby(this.props.playername, this.props.playercode, this.props.lobbycode).then(() => {
             lobby.props.goBack();
         });
     }

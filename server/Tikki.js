@@ -1,8 +1,8 @@
-var CardDeck = require('./CardDeck.js');
-var Hand = require('./Hand.js');
-var Card = require('./Card.js');
-var Player = require('./Player.js');
-var Round = require('./Round.js');
+let CardDeck = require('./CardDeck.js');
+let Hand = require('./Hand.js');
+let Card = require('./Card.js');
+let Player = require('./Player.js');
+let Round = require('./Round.js');
 
 
 function Tikki() {

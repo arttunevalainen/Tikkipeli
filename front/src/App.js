@@ -16,23 +16,17 @@ class App extends Component {
 
     constructor() {
         super();
-        this.state = {};
+        this.state = { playername: '', playercode: '', component: "Login" };
 
         this.getLoginData = this.getLoginData.bind(this);
         this.getLobbyData = this.getLobbyData.bind(this);
         this.goToLobby = this.goToLobby.bind(this);
         this.backToLobby = this.backToLobby.bind(this);
 
-
-        //REDUX KOKEILUA
+        /*REDUX KOKEILUA
         let originalState = { playername: '', playercode: '', component: "Login" };
         console.log(store.getState());
-        store.dispatch({ type: 'NEWPLAYER', name: originalState.playername, code: originalState.playercode, component: originalState.component });
-    }
-
-    componentDidMount() {
-        this.setState(store.getState());
-        console.log(store.getState());
+        store.dispatch({ type: 'NEWPLAYER', name: originalState.playername, code: originalState.playercode, component: originalState.component });*/
     }
 
     getLoginData(data) {
@@ -58,45 +52,32 @@ class App extends Component {
 	render() {
 
         //<Provider store={store}>TÄHÄN VÄLIIN KAIKKI MUOKATTAVA</Provider>
+        let login = (this.state.component === "Login");
+        let lobbies = (this.state.component === "Lobbies");
+        let lobby = (this.state.component === "Lobby");
+        let game = (this.state.component === "Game");
 
-        if(this.state.component === "Login") {
-            return (
-                <Login sendData={this.getLoginData}/>
-            );
-        }
-        else if(this.state.component === "Lobbies") {
-            return (
-                <Lobbies playername={this.state.playername}
-                         playercode={this.state.playercode}
-                         sendData={this.goToLobby}/>
-            );
-        }
-        else if(this.state.component === "Lobby") {
-            if(!this.state.gamestarted) {
-                return (
-                    <Lobby playername={this.state.playername}
-                           playercode={this.state.playercode}
-                           admin={this.state.admin}
-                           lobbycode={this.state.lobbycode}
-                           sendData={this.getLobbyData}
-                           goBack={this.backToLobby}/>
-                );
-            }
-            else {
-                return (<div>Game has already started</div>);
-            }
-        }
-        else if(this.state.component === "Game") {
-            return (
-                <Game playername={this.state.playername}
-                      playercode={this.state.playercode}
-                      lobbycode={this.state.lobbycode}
-                      sendData={this.backToLobby}/>
-            );
-        }
-        else {
-            return (<div>Error!</div>);
-        }
+        return (
+            <div>
+                {login && <Login        sendData={this.getLoginData}></Login>}
+                {lobbies && <Lobbies    playername={this.state.playername}
+                                        playercode={this.state.playercode}
+                                        sendData={this.goToLobby}></Lobbies>}
+                {game && <Game          playername={this.state.playername}
+                                        playercode={this.state.playercode}
+                                        lobbycode={this.state.lobbycode}
+                                        sendData={this.backToLobby}/>}
+                {!this.state.gamestarted &&
+                    <div>
+                        {lobby && <Lobby    playername={this.state.playername}
+                                            playercode={this.state.playercode}
+                                            admin={this.state.admin}
+                                            lobbycode={this.state.lobbycode}
+                                            sendData={this.getLobbyData}
+                                            goBack={this.backToLobby}></Lobby>}
+                    </div>}
+            </div>
+        );
 	}
 }
 

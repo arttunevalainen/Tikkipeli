@@ -1,11 +1,9 @@
-var CardDeck = require('./CardDeck.js');
-var Hand = require('./Hand.js');
-var Card = require('./Card.js');
-var Player = require('./Player.js');
-var pokerhandcalc = require('./PokerHandCalc.js');
-
-var promiseWhile = require('while-promise')(Promise)
-
+let CardDeck = require('./CardDeck.js');
+let Hand = require('./Hand.js');
+let Card = require('./Card.js');
+let Player = require('./Player.js');
+let pokerhandcalc = require('./PokerHandCalc.js');
+let objectifyCard = require('./Utilities.js');
 
 
 class Round {
@@ -220,10 +218,8 @@ class Round {
         let round = this;
 
         return new Promise(function(resolve, reject) {
-            let a = new Card('', '');
-            let b = new Card('', '');
 
-            a.objectifyCard(card).then(() => {
+            objectifyCard(card).then((a) => {
                 if(round.startingplayer.name === player.name) {
                     resolve(true);
                 }
@@ -231,11 +227,10 @@ class Round {
                     round.searchStarterPlayerPlay().then((startingplay) => {
                         if(startingplay) {
                     
-                            b.objectifyCard(startingplay.card).then(() => {
+                            objectifyCard(startingplay.card).then((b) => {
                                 if(a.suit === b.suit) {
-                                    round.compareCards(player, a, b).then(() => {
-                                        resolve(true);
-                                    });
+                                    round.compareCards(player, a, b);
+                                    resolve(true);
                                 }
                                 else {
                                     round.playerHasPlayableCards(player, b.suit).then((playable) => {
@@ -262,16 +257,9 @@ class Round {
 
     /** Compare cards and change startingplayer if needed */
     compareCards(player, a, b) {
-        let round = this;
-
-        return new Promise(function(resolve, reject) {
-            if(a.number > b.number) {
-                round.startingplayer = player;
-            }
-            resolve();
-        }).catch((err) => {
-            console.log(err);
-        });
+        if(a.number > b.number) {
+            this.startingplayer = player;
+        } 
     }
 
     /** Return true if player has playable cards left in hand */
@@ -282,9 +270,7 @@ class Round {
                     resolve(true);
                 }
             }
-
             resolve(false);
-
         }).catch((err) => {
             console.log(err);
         });
@@ -317,11 +303,9 @@ class Round {
 
                 round.endingWithTwo().then((twoend) => {
                     round.checkHands().then((status) => {
-                        let winnerIndex = status.winner;
-
                         round.tikkiwinner = tikkiwinner;
                         round.twoend = twoend;
-                        round.pokerwinner = round.players[winnerIndex].name;
+                        round.pokerwinner = round.players[status.winner].name;
                         round.winninghand = round.players[status.winner].hand.poker.hand;
 
                         resolve({ status: 'ok' });
