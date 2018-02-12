@@ -7,7 +7,7 @@ class Tester extends Component {
     constructor() {
         super();
 
-        this.state = { stats: {tikkiwinner: "dsad", pokerwinner: "wasd", winninghand: "TwoPairs" }};
+        this.state = { stats: { tikkiwinner: "dsad" }};
     }
 
     render() {

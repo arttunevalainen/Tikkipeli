@@ -303,10 +303,12 @@ class Round {
 
                 round.endingWithTwo().then((twoend) => {
                     round.checkHands().then((status) => {
+                        if(status.winner) {
+                            round.pokerwinner = round.players[status.winner].name;
+                            round.winninghand = round.players[status.winner].hand.poker.hand
+                        }
                         round.tikkiwinner = tikkiwinner;
                         round.twoend = twoend;
-                        round.pokerwinner = round.players[status.winner].name;
-                        round.winninghand = round.players[status.winner].hand.poker.hand;
 
                         resolve({ status: 'ok' });
                     });
@@ -323,7 +325,7 @@ class Round {
 
         return new Promise(function(resolve, reject) {
             let besthand = {comparable: 0};
-            let ownerofbesthand = 0;
+            let ownerofbesthand;
 
             for(let i = 0; i < round.players.length; i++) {
                 let playerhand = round.players[i].hand;
@@ -384,33 +386,37 @@ class Round {
              * KAKSIPARIA 2p
              * PARI 1p
              */
-            let owner = round.players[ownerofbesthand];
-            if(besthand.hand === "StraightFlush") {
-                owner.points = owner.points + 10;
-            }
-            else if(besthand.hand === "Quads") {
-                owner.points = owner.points + 10;
-            }
-            else if(besthand.hand === "FullHouse") {
-                owner.points = owner.points + 6;
-            }
-            else if(besthand.hand === "Flush") {
-                owner.points = owner.points + 5;
-            }
-            else if(besthand.hand === "Straigth") {
-                owner.points = owner.points + 4;
-            }
-            else if(besthand.hand === "Trips") {
-                owner.points = owner.points + 3;
-            }
-            else if(besthand.hand === "TwoPairs") {
-                owner.points = owner.points + 2;
-            }
-            else if(besthand.hand === "Pair") {
-                owner.points = owner.points + 1;
+            if(ownerofbesthand) {
+                let owner = round.players[ownerofbesthand];
+                if(besthand.hand === "StraightFlush") {
+                    owner.points = owner.points + 10;
+                }
+                else if(besthand.hand === "Quads") {
+                    owner.points = owner.points + 10;
+                }
+                else if(besthand.hand === "FullHouse") {
+                    owner.points = owner.points + 6;
+                }
+                else if(besthand.hand === "Flush") {
+                    owner.points = owner.points + 5;
+                }
+                else if(besthand.hand === "Straigth") {
+                    owner.points = owner.points + 4;
+                }
+                else if(besthand.hand === "Trips") {
+                    owner.points = owner.points + 3;
+                }
+                else if(besthand.hand === "TwoPairs") {
+                    owner.points = owner.points + 2;
+                }
+                else if(besthand.hand === "Pair") {
+                    owner.points = owner.points + 1;
+                }
+
+                resolve({ status: 'ok', winner: ownerofbesthand });
             }
 
-            resolve({ status: 'ok', winner: ownerofbesthand });
+            resolve({ status: 'ok' });
         }).catch((err) => {
             console.log(err);
         });
